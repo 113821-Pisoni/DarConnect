@@ -1,0 +1,126 @@
+/* Sidebar principal */
+.sidebar {
+  height: 100vh;
+  width: 250px;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  transition: width 0.3s ease-in-out;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: sticky; /* Agregar esto */
+  top: 0; /* Agregar esto */
+  overflow-y: auto; /* Por si el sidebar tiene mucho contenido */
+}
+
+/* Sidebar colapsado - solo iconos */
+.sidebar.collapsed {
+  width: 60px;
+}
+
+/* Header del sidebar */
+.sidebar-header {
+  background: rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  min-height: 60px;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.sidebar.collapsed .sidebar-header {
+  justify-content: center;
+}
+
+/* Navegación */
+.nav {
+  flex: 1;
+  overflow: hidden;
+}
+
+.nav-link {
+  border: none;
+  transition: all 0.3s ease;
+  position: relative;
+  white-space: nowrap;
+  min-height: 48px;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white;
+}
+
+.nav-link:active,
+.nav-link.active {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-left: 4px solid #ffc107;
+  color: white;
+}
+
+/* Iconos */
+.nav-link i {
+  width: 20px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+/* Ocultar texto cuando está colapsado */
+.sidebar.collapsed .nav-link span,
+.sidebar.collapsed .sidebar-header h5 {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  transition: opacity 0.2s ease;
+}
+
+/* Footer del sidebar - solo visible cuando expandido */
+.sidebar.collapsed .p-3 {
+  display: none;
+}
+
+/* Hacer el sidebar clickeable cuando está colapsado */
+.sidebar.collapsed {
+  cursor: pointer;
+}
+
+.sidebar:not(.collapsed) {
+  cursor: default;
+}
+
+/* Scrollbar personalizado */
+.nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.nav::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Responsive para móvil */
+@media (max-width: 991px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translateX(-100%);
+  }
+  
+  .sidebar:not(.collapsed) {
+    transform: translateX(0);
+  }
+  
+  /* En móvil, cuando se abre, mantiene ancho completo */
+  .sidebar.collapsed {
+    width: 250px;
+    transform: translateX(-100%);
+  }
+}

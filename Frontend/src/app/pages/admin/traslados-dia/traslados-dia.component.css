@@ -1,0 +1,73 @@
+/* Traslados del Día Admin - Estilo Minimalista */
+
+.container-fluid {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Cards principales */
+.card {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.25s ease;
+}
+
+.card:hover {
+  border-color: #3182ce;
+  box-shadow: 0 8px 20px rgba(49, 130, 206, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Título principal */
+h2 {
+  color: #1a202c;
+  font-weight: 700;
+}
+
+/* Filtros activos */
+.btn.active {
+  background-color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+  color: white !important;
+}
+
+/* Cards de traslados específicos */
+.card.h-100 {
+  position: relative;
+}
+
+.card.h-100::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+  background: #3182ce;
+  border-radius: 12px 0 0 12px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.card.h-100:hover::before {
+  opacity: 1;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 1rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  .btn-group {
+    flex-wrap: wrap;
+  }
+  
+  .btn-group .btn {
+    margin-bottom: 0.5rem;
+  }
+}

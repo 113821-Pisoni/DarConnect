@@ -1,0 +1,228 @@
+<!-- src/app/pages/admin/usuarios/usuarios.component.html -->
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+      <div>
+        <h2 class="mb-1">Gestión de Usuarios</h2>
+        <p class="text-muted mb-0">Administrar usuarios del sistema</p>
+      </div>
+      <button class="btn btn-success" (click)="crearUsuario()">
+        <i class="bi bi-plus-circle me-2"></i>
+        Nuevo Usuario
+      </button>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="alert alert-danger" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      {{ error() }}
+      <button class="btn btn-sm btn-outline-danger ms-3" (click)="cargarUsuarios()">
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!loading() && !error()) {
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+      <div class="col-6 col-md-2 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <div class="bg-primary bg-opacity-10 p-2 rounded mb-2 d-inline-block">
+              <i class="bi bi-people text-primary fs-4"></i>
+            </div>
+            <h3 class="mb-0 text-primary">{{ estadisticas().total }}</h3>
+            <small class="text-muted">Total</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-6 col-md-2 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <div class="bg-success bg-opacity-10 p-2 rounded mb-2 d-inline-block">
+              <i class="bi bi-check-circle text-success fs-4"></i>
+            </div>
+            <h3 class="mb-0 text-success">{{ estadisticas().activos }}</h3>
+            <small class="text-muted">Activos</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-6 col-md-2 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <div class="bg-secondary bg-opacity-10 p-2 rounded mb-2 d-inline-block">
+              <i class="bi bi-x-circle text-secondary fs-4"></i>
+            </div>
+            <h3 class="mb-0 text-secondary">{{ estadisticas().inactivos }}</h3>
+            <small class="text-muted">Inactivos</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-6 col-md-3 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <div class="bg-danger bg-opacity-10 p-2 rounded mb-2 d-inline-block">
+              <i class="bi bi-shield-fill-check text-danger fs-4"></i>
+            </div>
+            <h3 class="mb-0 text-danger">{{ estadisticas().administradores }}</h3>
+            <small class="text-muted">Administradores</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-6 col-md-3 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <div class="bg-info bg-opacity-10 p-2 rounded mb-2 d-inline-block">
+              <i class="bi bi-truck text-info fs-4"></i>
+            </div>
+            <h3 class="mb-0 text-info">{{ estadisticas().choferes }}</h3>
+            <small class="text-muted">Choferes</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="btn-group" role="group">
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary"
+            [class.active]="filtroActivo() === 'TODOS'"
+            (click)="cambiarFiltro('TODOS')">
+            Todos
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-outline-success"
+            [class.active]="filtroActivo() === 'ACTIVOS'"
+            (click)="cambiarFiltro('ACTIVOS')">
+            Activos
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary"
+            [class.active]="filtroActivo() === 'INACTIVOS'"
+            (click)="cambiarFiltro('INACTIVOS')">
+            Inactivos
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-outline-danger"
+            [class.active]="filtroActivo() === 'ADMINISTRADOR'"
+            (click)="cambiarFiltro('ADMINISTRADOR')">
+            Administradores
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-outline-primary"
+            [class.active]="filtroActivo() === 'CHOFER'"
+            (click)="cambiarFiltro('CHOFER')">
+            Choferes
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de Usuarios -->
+    <div class="row">
+      @if (loading()) {
+        <div class="col-12">
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-3 text-muted">Cargando usuarios...</p>
+          </div>
+        </div>
+      } @else if (usuariosFiltrados().length === 0) {
+        <div class="col-12">
+          <div class="text-center py-5">
+            <i class="bi bi-inbox fs-1 text-muted"></i>
+            <h5 class="mt-3 text-muted">No hay usuarios</h5>
+            <p class="text-muted">No se encontraron usuarios para el filtro seleccionado.</p>
+          </div>
+        </div>
+      } @else {
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="px-4 py-3">USUARIO</th>
+                      <th class="px-4 py-3">ROL</th>
+                      <th class="px-4 py-3">ESTADO</th>
+                      <th class="px-4 py-3">FECHA CREACIÓN</th>
+                      <th class="px-4 py-3 text-center">ACCIONES</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (usuario of usuariosFiltrados(); track usuario.id) {
+                      <tr>
+                        <td class="px-4 py-3">
+                          <div class="d-flex align-items-center">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+                              <i class="bi bi-person text-primary"></i>
+                            </div>
+                            <div>
+                              <div class="fw-semibold">{{ usuario.usuario }}</div>
+                              <small class="text-muted">ID: {{ usuario.id }}</small>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="px-4 py-3">
+                          <span [class]="getRolBadgeClass(usuario.rol)">
+                            {{ usuario.rol }}
+                          </span>
+                        </td>
+                        <td class="px-4 py-3">
+                          <span [class]="getEstadoBadgeClass(usuario.activo)">
+                            {{ usuario.activo ? 'Activo' : 'Inactivo' }}
+                          </span>
+                        </td>
+                        <td class="px-4 py-3">
+                          <small class="text-muted">
+                            {{ usuario.fechaCreacion ? (usuario.fechaCreacion | date:'short') : 'N/A' }}
+                          </small>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                          <div class="btn-group btn-group-sm" role="group">
+                            <button 
+                              type="button"
+                              class="btn btn-outline-warning"
+                              (click)="resetPassword(usuario)"
+                              title="Resetear Contraseña">
+                              <i class="bi bi-key"></i>
+                            </button>
+                            <button 
+                              type="button"
+                              [class]="usuario.activo ? 'btn btn-outline-danger' : 'btn btn-outline-success'"
+                              (click)="toggleEstado(usuario)"
+                              [title]="usuario.activo ? 'Desactivar Usuario' : 'Activar Usuario'">
+                              <i [class]="usuario.activo ? 'bi bi-x-circle' : 'bi bi-check-circle'"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,21 @@
+/* Layout principal */
+.d-flex {
+  min-height: 100vh;
+}
+
+/* Contenido principal */
+.flex-fill {
+  min-height: 100vh;
+}
+
+/* En desktop - dejar espacio para el sidebar */
+@media (min-width: 992px) {
+  .flex-fill {
+    margin-left: 0; /* Sin margen, el sidebar es relativo */
+  }
+}
+
+/* Padding del contenido */
+main.container-fluid {
+  padding: 1.5rem;
+}

@@ -1,0 +1,61 @@
+<!-- search-select.component.html -->
+<div class="search-select-container" #container>
+  @if (label) {
+    <label class="form-label">{{ label }}:</label>
+  }
+  
+  <!-- Input de búsqueda -->
+  <div class="search-input-container">
+    <input 
+      #searchInput
+      type="text"
+      class="form-control"
+      [placeholder]="placeholder"
+      [(ngModel)]="searchTerm"
+      (input)="onSearchChange()"
+      (click)="toggleDropdown()"
+      (keydown)="onKeyDown($event)"
+      autocomplete="off">
+    
+    <!-- Botón para limpiar -->
+    @if (selectedItem && clearable) {
+      <button 
+        type="button" 
+        class="clear-button"
+        (click)="clearSelection()"
+        title="Limpiar selección">
+        ×
+      </button>
+    }
+  </div>
+
+  <!-- Dropdown con opciones filtradas -->
+  @if (isDropdownOpen && filteredOptions.length > 0) {
+    <div class="dropdown-menu search-select-dropdown show">
+      @for (option of filteredOptions; track option.id; let i = $index) {
+        <div class="dropdown-item option-item" 
+             [class.highlighted]="i === highlightedIndex"
+             [class.selected]="isSelected(option)"
+             (click)="selectOption(option)"
+             (mouseenter)="highlightedIndex = i">
+          
+          <div class="option-content">
+            <div class="option-label">{{ option.label }}</div>
+            @if (option.subtitle) {
+              <div class="option-subtitle">{{ option.subtitle }}</div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Mensaje cuando no hay resultados -->
+  @if (isDropdownOpen && filteredOptions.length === 0 && searchTerm) {
+    <div class="dropdown-menu search-select-dropdown show">
+      <div class="dropdown-item text-muted no-results">
+        No se encontraron resultados para "{{ searchTerm }}"
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,92 @@
+<!-- src/app/components/navbar/navbar.component.html -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+  <div class="container-fluid">
+    
+    <!-- Título -->
+    <span class="navbar-brand mb-0 h1">Panel de Control</span>
+
+    <!-- Lado derecho -->
+    <div class="d-flex align-items-center">
+      
+      <!-- Notificaciones -->
+      <button class="btn btn-link text-dark me-3 position-relative" type="button">
+        <i class="bi bi-bell" style="font-size: 1.2rem;"></i>
+        <!-- Badge de notificaciones (opcional) -->
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+          3
+        </span>
+      </button>
+
+      <!-- Dropdown Usuario -->
+      <div class="dropdown">
+        <button 
+          class="btn btn-link dropdown-toggle text-dark d-flex align-items-center p-0" 
+          type="button" 
+          (click)="toggleDropdown()"
+          [class.show]="isDropdownOpen()">
+          
+          <!-- Avatar -->
+          <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" 
+               style="width: 35px; height: 35px; font-size: 0.9rem;">
+            @if (!isLoading()) {
+              <span>{{ avatarInitials() }}</span>
+            } @else {
+              <div class="spinner-border spinner-border-sm text-light" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            }
+          </div>
+          
+          <!-- Nombre y Rol -->
+          <div class="text-start me-2">
+            <div class="fw-semibold" style="font-size: 0.9rem; line-height: 1.2;">
+              {{ displayName() }}
+            </div>
+            <div class="text-muted" style="font-size: 0.75rem; line-height: 1;">
+              {{ displayRole() }}
+            </div>
+          </div>
+          
+          <!-- Icono dropdown -->
+          <i class="bi bi-chevron-down" style="font-size: 0.8rem;"></i>
+        </button>
+
+        <!-- Menu Dropdown -->
+        <ul class="dropdown-menu dropdown-menu-end" 
+            [class.show]="isDropdownOpen()"
+            (click)="$event.stopPropagation()">
+          
+          <li>
+            <button class="dropdown-item d-flex align-items-center" 
+                    type="button" 
+                    (click)="goToProfile()">
+              <i class="bi bi-person me-2"></i>
+              Mi Perfil
+            </button>
+          </li>
+          
+          <li>
+            <button class="dropdown-item d-flex align-items-center" 
+                    type="button" 
+                    (click)="goToSettings()">
+              <i class="bi bi-gear me-2"></i>
+              Configuración
+            </button>
+          </li>
+          
+          <li><hr class="dropdown-divider"></li>
+          
+          <li>
+            <button class="dropdown-item d-flex align-items-center text-danger" 
+                    type="button" 
+                    (click)="logout()">
+              <i class="bi bi-box-arrow-right me-2"></i>
+              Cerrar Sesión
+            </button>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</nav>

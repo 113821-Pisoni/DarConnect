@@ -1,0 +1,19 @@
+/* chofer.component.css */
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 240px; /* Espacio para el sidebar */
+}
+
+.content-area {
+  padding: 20px;
+  flex: 1;
+  overflow-y: auto;
+}

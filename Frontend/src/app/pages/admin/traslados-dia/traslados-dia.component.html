@@ -1,0 +1,238 @@
+<!-- src/app/pages/admin/traslados-dia/traslados-dia.component.html -->
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2 class="mb-1">Traslados del Día</h2>
+      <p class="text-muted mb-0">{{ fechaHoy() }}</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="alert alert-danger" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      {{ error() }}
+      <button class="btn btn-sm btn-outline-danger ms-3" (click)="cargarTraslados()">
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!loading() && !error()) {
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+      <div class="col-6 col-md-3 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="bg-warning bg-opacity-10 p-2 rounded me-3">
+                <i class="bi bi-clock text-warning fs-4"></i>
+              </div>
+              <div class="flex-grow-1">
+                <h6 class="text-muted mb-1">Pendientes</h6>
+                <h3 class="mb-0 text-warning">{{ estadisticas().pendientes }}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-6 col-md-3 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="bg-success bg-opacity-10 p-2 rounded me-3">
+                <i class="bi bi-play-circle text-success fs-4"></i>
+              </div>
+              <div class="flex-grow-1">
+                <h6 class="text-muted mb-1">En Curso</h6>
+                <h3 class="mb-0 text-success">{{ estadisticas().iniciados }}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-6 col-md-3 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
+                <i class="bi bi-check-circle text-primary fs-4"></i>
+              </div>
+              <div class="flex-grow-1">
+                <h6 class="text-muted mb-1">Finalizados</h6>
+                <h3 class="mb-0 text-primary">{{ estadisticas().finalizados }}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-6 col-md-3 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="bg-danger bg-opacity-10 p-2 rounded me-3">
+                <i class="bi bi-x-circle text-danger fs-4"></i>
+              </div>
+              <div class="flex-grow-1">
+                <h6 class="text-muted mb-1">Cancelados</h6>
+                <h3 class="mb-0 text-danger">{{ estadisticas().cancelados }}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="btn-group" role="group">
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary"
+            [class.active]="filtroActivo() === 'TODOS'"
+            (click)="cambiarFiltro('TODOS')">
+            Todos
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-outline-warning"
+            [class.active]="filtroActivo() === 'PENDIENTE'"
+            (click)="cambiarFiltro('PENDIENTE')">
+            Pendientes
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-outline-success"
+            [class.active]="filtroActivo() === 'INICIADO'"
+            (click)="cambiarFiltro('INICIADO')">
+            En Curso
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-outline-primary"
+            [class.active]="filtroActivo() === 'FINALIZADO'"
+            (click)="cambiarFiltro('FINALIZADO')">
+            Finalizados
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-outline-danger"
+            [class.active]="filtroActivo() === 'CANCELADO'"
+            (click)="cambiarFiltro('CANCELADO')">
+            Cancelados
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de Traslados -->
+    <div class="row">
+      @if (loading()) {
+        <div class="col-12">
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-3 text-muted">Cargando traslados...</p>
+          </div>
+        </div>
+      } @else if (trasladosFiltrados().length === 0) {
+        <div class="col-12">
+          <div class="text-center py-5">
+            <i class="bi bi-inbox fs-1 text-muted"></i>
+            <h5 class="mt-3 text-muted">No hay traslados</h5>
+            <p class="text-muted">No se encontraron traslados para el filtro seleccionado.</p>
+          </div>
+        </div>
+      } @else {
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="px-4 py-3">PACIENTE</th>
+                      <th class="px-4 py-3">CHOFER</th>
+                      <th class="px-4 py-3">ESTADO</th>
+                      <th class="px-4 py-3">HORA PROGRAMADA</th>
+                      <th class="px-4 py-3 text-center">ACCIONES</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (traslado of trasladosFiltrados(); track traslado.idTraslado) {
+                      <tr>
+                        <td class="px-4 py-3">
+                          <div class="d-flex align-items-center">
+                            <div>
+                              <div class="fw-semibold">{{ traslado.nombreCompletoPaciente }}</div>
+                              <div class="small text-muted">
+                                <i class="bi bi-geo-alt-fill text-success me-1"></i>
+                                {{ traslado.direccionOrigen }}
+                              </div>
+                              <div class="small text-muted">
+                                <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                                {{ traslado.direccionDestino }}
+                              </div>
+                            </div>
+                            @if (traslado.sillaRueda) {
+                               <i class="bi bi-person-wheelchair text-dark" style="padding-left: 5%;"></i>
+                            }
+                          </div>
+                        </td>
+                        <td class="px-4 py-3">
+                          <div class="fw-medium">{{ traslado.nombreCompletoChofer || 'Chofer Asignado' }}</div>
+                        </td>
+                        <td class="px-4 py-3">
+                          <span [class]="getBadgeClass(traslado.estadoActual)">
+                            {{ getEstadoLabel(traslado.estadoActual) }}
+                          </span>
+                        </td>
+                        <td class="px-4 py-3">
+                          <div class="fw-semibold">{{ formatearHora(traslado.horaProgramada) }}</div>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                          <div class="btn-group btn-group-sm" role="group">
+                            <button 
+                              type="button"
+                              class="btn btn-outline-success"
+                              (click)="contactarPaciente(traslado.telefonoPaciente)"
+                              title="Contactar Paciente">
+                              <i class="bi bi-telephone"></i>
+                            </button>
+                            <button 
+                              type="button"
+                              class="btn btn-outline-primary"
+                              (click)="contactarChofer(traslado.idTraslado)"
+                              title="Contactar Chofer">
+                              <i class="bi bi-person"></i>
+                            </button>
+                            @if (traslado.estadoActual !== 'CANCELADO' && traslado.estadoActual !== 'FINALIZADO') {
+                              <button 
+                                type="button"
+                                class="btn btn-outline-danger"
+                                (click)="cancelarTraslado(traslado.idTraslado)"
+                                title="Cancelar Traslado">
+                                <i class="bi bi-x-circle"></i>
+                              </button>
+                            }
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

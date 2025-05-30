@@ -1,0 +1,73 @@
+<div class="login-container">
+    <div class="login-card">
+      <div class="lock">
+        <img src="assets/images/lock-icon.svg" alt="lock">
+      </div>
+      
+      <h1 class="title">DAR CONNECT</h1>
+      <p class="subtitle">Sistema de gestión de traslados</p>
+      
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="usuario">Usuario</label>
+          <div class="input-with-icon">
+            <i class="user-icon"></i>
+            <input 
+              type="text" 
+              id="usuario" 
+              formControlName="username" 
+              placeholder="Ingresa tu usuario">
+          </div>
+          @if (submitted && f['username'].errors) {
+            <div class="error-message">
+              @if (f['username'].errors['required']) {
+                <div>El usuario es requerido</div>
+              }
+            </div>
+          }
+        </div>
+        
+        <div class="form-group">
+          <label for="contrasena">Contraseña</label>
+          <div class="input-with-icon">
+            <i class="password-icon"></i>
+            <i class="toggle-password" (click)="togglePasswordVisibility()">
+              <img [src]="showPassword ? 'assets/images/eye-off-icon.svg' : 'assets/images/eye-icon.svg'" alt="Toggle password visibility">
+            </i>
+            <input 
+              [type]="showPassword ? 'text' : 'password'" 
+              id="contrasena" 
+              formControlName="password" 
+              placeholder="••••••••">
+          </div>
+          @if (submitted && f['password'].errors) {
+            <div class="error-message">
+              @if (f['password'].errors['required']) {
+                <div>La contraseña es requerida</div>
+              }
+            </div>
+          }
+        </div>
+        
+        <div class="form-check">
+          <div class="remember-me">
+            <input type="checkbox" id="recordarme" formControlName="remember">
+            <label for="recordarme">Recordarme</label>
+          </div>
+          
+          <a class="forgot-password" href="#">¿Olvidaste tu contraseña?</a>
+        </div>
+        
+        <button type="submit" class="login-button" [disabled]="loading">
+          @if (loading) {
+            <span class="spinner"></span>
+          }
+          Iniciar sesión
+        </button>
+        
+        @if (error) {
+          <div class="error-message">{{ error }}</div>
+        }
+      </form>
+    </div>
+  </div>

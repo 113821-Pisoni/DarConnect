@@ -1,0 +1,298 @@
+<!-- src/app/pages/admin/traslados/traslados.component.html -->
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 class="mb-1">Gestión de Traslados</h2>
+          <p class="text-muted mb-0">Administrar traslados del sistema</p>
+        </div>
+        <button class="btn btn-success" (click)="crearTraslado()">
+          <i class="bi bi-plus-circle me-2"></i>
+          Nuevo Traslado
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="alert alert-danger" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      {{ error() }}
+      <button class="btn btn-sm btn-outline-danger ms-3" (click)="cargarDatos()">
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!loading() && !error()) {
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+      <div class="col-6 col-lg-3 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <div class="bg-primary bg-opacity-10 p-2 rounded mb-2 d-inline-block">
+              <i class="bi bi-truck text-primary fs-4"></i>
+            </div>
+            <h3 class="mb-0 text-primary">{{ estadisticas().totalTraslados }}</h3>
+            <small class="text-muted">Total</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-6 col-lg-3 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <div class="bg-success bg-opacity-10 p-2 rounded mb-2 d-inline-block">
+              <i class="bi bi-check-circle text-success fs-4"></i>
+            </div>
+            <h3 class="mb-0 text-success">{{ estadisticas().trasladosActivos }}</h3>
+            <small class="text-muted">Activos</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-6 col-lg-3 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <div class="bg-secondary bg-opacity-10 p-2 rounded mb-2 d-inline-block">
+              <i class="bi bi-x-circle text-secondary fs-4"></i>
+            </div>
+            <h3 class="mb-0 text-secondary">{{ estadisticas().trasladosInactivos }}</h3>
+            <small class="text-muted">Inactivos</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-6 col-lg-3 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <div class="bg-info bg-opacity-10 p-2 rounded mb-2 d-inline-block">
+              <i class="bi bi-arrow-repeat text-info fs-4"></i>
+            </div>
+            <h3 class="mb-0 text-info">{{ trasladosFiltrados().length }}</h3>
+            <small class="text-muted">Filtrados</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <!-- Filtros de estado -->
+        <div class="btn-group flex-wrap mb-3" role="group">
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary"
+            [class.active]="filtroActivo() === 'TODOS'"
+            (click)="cambiarFiltro('TODOS')">
+            Todos
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-outline-success"
+            [class.active]="filtroActivo() === 'ACTIVOS'"
+            (click)="cambiarFiltro('ACTIVOS')">
+            Activos
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary"
+            [class.active]="filtroActivo() === 'INACTIVOS'"
+            (click)="cambiarFiltro('INACTIVOS')">
+            Inactivos
+          </button>
+        </div>
+        
+        <!-- Filtros de búsqueda -->
+        <div class="row">
+          <div class="col-md-4 mb-2">
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="bi bi-person-heart"></i>
+              </span>
+              <input 
+                type="text" 
+                class="form-control" 
+                placeholder="Buscar por paciente..."
+                [value]="filtroPaciente()"
+                (input)="filtroPaciente.set($any($event.target).value)">
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="bi bi-person-badge"></i>
+              </span>
+              <input 
+                type="text" 
+                class="form-control" 
+                placeholder="Buscar por chofer..."
+                [value]="filtroChofer()"
+                (input)="filtroChofer.set($any($event.target).value)">
+            </div>
+          </div>
+          <div class="col-md-4 mb-2">
+            <button 
+              type="button" 
+              class="btn btn-outline-secondary w-100"
+              (click)="limpiarFiltros()">
+              <i class="bi bi-eraser me-1"></i>
+              Limpiar Filtros
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de Traslados -->
+    <div class="row">
+      @if (trasladosFiltrados().length === 0) {
+        <div class="col-12">
+          <div class="text-center py-5">
+            <i class="bi bi-inbox fs-1 text-muted"></i>
+            <h5 class="mt-3 text-muted">No hay traslados</h5>
+            <p class="text-muted">No se encontraron traslados para el filtro seleccionado.</p>
+          </div>
+        </div>
+      } @else {
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="px-4 py-3">TRASLADO</th>
+                      <th class="px-4 py-3">CHOFER</th>
+                      <th class="px-4 py-3">PACIENTE</th>
+                      <th class="px-4 py-3">HORARIO Y DÍAS</th>
+                      <th class="px-4 py-3">RUTA</th>
+                      <th class="px-4 py-3">ESTADO</th>
+                      <th class="px-4 py-3 text-center">ACCIONES</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (traslado of trasladosFiltrados(); track traslado.id) {
+                      <tr>
+                        <td class="px-4 py-3">
+                          <div class="d-flex align-items-center">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+                              <i class="bi bi-truck text-primary"></i>
+                            </div>
+                            <div>
+                              <div class="fw-semibold">Traslado #{{ traslado.id }}</div>
+                              <small class="text-muted">
+                                {{ traslado.fechaInicio | date:'dd/MM/yyyy' }}
+                                @if (traslado.fechaFin) {
+                                  - {{ traslado.fechaFin | date:'dd/MM/yyyy' }}
+                                } @else {
+                                  - Indefinido
+                                }
+                              </small>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="px-4 py-3">
+                          <div class="fw-semibold">{{ getNombreChofer(traslado.idAgenda) }}</div>
+                          <small class="text-muted">Agenda #{{ traslado.idAgenda }}</small>
+                        </td>
+                        <td class="px-4 py-3">
+                          <div class="fw-semibold">{{ getNombrePaciente(traslado.idPaciente) }}</div>
+                          @if (traslado.sillaRueda) {
+                            <small class="text-warning">
+                              <i class="bi bi-person-wheelchair me-1"></i>
+                              Silla de ruedas
+                            </small>
+                          }
+                        </td>
+                        <td class="px-4 py-3">
+                          <div class="text-center">
+                            <div class="fw-bold text-primary mb-1">{{ formatearHora(traslado.horaProgramada) }}</div>
+                            <small class="text-muted">{{ getDiasTexto(traslado.diasSemana) }}</small>
+                          </div>
+                        </td>
+                        <td class="px-4 py-3">
+                          <div class="small">
+                            <div class="mb-1">
+                              <i class="bi bi-geo-alt me-1 text-success"></i>
+                              {{ traslado.direccionOrigen || 'No especificado' }}
+                            </div>
+                            <div>
+                              <i class="bi bi-geo-alt-fill me-1 text-danger"></i>
+                              {{ traslado.direccionDestino || 'No especificado' }}
+                            </div>
+                          </div>
+                        </td>
+                        <td class="px-4 py-3">
+                          <span [class]="getEstadoBadgeClass(traslado.activo)">
+                            {{ traslado.activo ? 'Activo' : 'Inactivo' }}
+                          </span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                          <div class="btn-group" role="group">
+                            <!-- Botón Editar -->
+                            <button 
+                              type="button"
+                              class="btn btn-outline-primary btn-sm"
+                              (click)="editarTraslado(traslado)"
+                              title="Editar Traslado">
+                              <i class="bi bi-pencil me-1"></i>
+                              Editar
+                            </button>
+                            
+                            <!-- Botón Dar de Baja (solo si está activo) -->
+                            @if (traslado.activo) {
+                              <button 
+                                type="button"
+                                class="btn btn-outline-danger btn-sm"
+                                (click)="darDeBaja(traslado)"
+                                title="Dar de Baja Traslado">
+                                <i class="bi bi-x-circle me-1"></i>
+                                Dar de Baja
+                              </button>
+                            }
+                          </div>
+                        </td>
+                      </tr>
+                      
+                      <!-- Fila de observaciones (si las hay) -->
+                      @if (traslado.observaciones) {
+                        <tr class="table-light">
+                          <td colspan="7" class="px-4 py-2">
+                            <small class="text-muted">
+                              <i class="bi bi-chat-text me-1"></i>
+                              <strong>Observaciones:</strong> {{ traslado.observaciones }}
+                            </small>
+                          </td>
+                        </tr>
+                      }
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="row">
+      <div class="col-12">
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="mt-3 text-muted">Cargando datos...</p>
+        </div>
+      </div>
+    </div>
+  }
+</div>
