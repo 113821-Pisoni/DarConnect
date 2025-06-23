@@ -3,7 +3,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
-import { ChoferData, ChoferCreateDTO, UsuarioDisponible } from '../interfaces/chofer.interface';
+import { ChoferData, ChoferCreateDTO, UsuarioDisponible,EstadisticasChoferResponse } from '../interfaces/chofer.interface';
+import { HttpParams } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +26,6 @@ export class ChoferService {
     throw new Error('No hay usuario logueado');
   }
 
-  console.log('User data:', user); // Para debug
   return this.http.get<ChoferData>(`${this.apiUrl}/by-usuario/${user.id}`);
 }
 
@@ -76,4 +76,9 @@ export class ChoferService {
   getUsuariosDisponibles(): Observable<UsuarioDisponible[]> {
     return this.http.get<UsuarioDisponible[]>(`${this.apiUrl}/usuarios-disponibles`);
   }
+
+  getEstadisticasChofer(choferId: number, periodo: string = 'semana'): Observable<EstadisticasChoferResponse> {
+  let params = new HttpParams().set('periodo', periodo);
+  return this.http.get<EstadisticasChoferResponse>(`${this.apiUrl}/${choferId}/estadisticas`, { params });
+}
 }

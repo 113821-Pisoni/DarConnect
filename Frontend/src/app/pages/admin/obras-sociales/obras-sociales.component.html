@@ -1,22 +1,24 @@
-<!-- src/app/pages/admin/obras-sociales/obras-sociales.component.html -->
-<div class="container-fluid py-4">
+<div class="dashboard-container">
   <!-- Header -->
-  <div class="row mb-4">
-    <div class="col-12 d-flex justify-content-between align-items-center">
-      <div>
-        <h2 class="mb-1">Gestión de Obras Sociales</h2>
-        <p class="text-muted mb-0">Administrar obras sociales del sistema</p>
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">Gestión de Obras Sociales</h1>
+        <p class="page-subtitle">Administrar obras sociales del sistema</p>
       </div>
-      <div class="d-flex gap-2">
+      <div class="header-actions">
+       <!-- <button 
+          type="button"
+          class="debug-btn"
+          (click)="debugObrasSociales()"
+          title="Debug Obras Sociales">
+          <i class="bi bi-bug"></i>
+        </button> -->
         <button 
-                              type="button"
-                              class="btn btn-outline-danger btn-sm"
-                              (click)="debugObrasSociales()"
-                              title="Debug Obras Sociales">
-                              <i class="bi bi-bug"></i>
-                            </button>
-        <button class="btn btn-success" (click)="crearObraSocial()">
-          <i class="bi bi-plus-circle me-2"></i>
+          class="primary-btn" 
+          (click)="abrirModalCrear()"
+          [disabled]="loading()">
+          <i class="bi bi-plus-circle"></i>
           Nueva Obra Social
         </button>
       </div>
@@ -25,10 +27,10 @@
 
   <!-- Error State -->
   @if (error()) {
-    <div class="alert alert-danger" role="alert">
-      <i class="bi bi-exclamation-triangle me-2"></i>
-      {{ error() }}
-      <button class="btn btn-sm btn-outline-danger ms-3" (click)="cargarDatos()">
+    <div class="error-alert">
+      <i class="bi bi-exclamation-triangle"></i>
+      <span>{{ error() }}</span>
+      <button class="error-retry-btn" (click)="cargarDatos()">
         Reintentar
       </button>
     </div>
@@ -36,177 +38,141 @@
 
   <!-- Content -->
   @if (!loading() && !error()) {
-    <!-- Estadísticas -->
-    <div class="row mb-4">
-      <div class="col-6 col-lg-4 mb-3">
-        <div class="card border-0 shadow-sm">
-          <div class="card-body text-center">
-            <div class="bg-primary bg-opacity-10 p-2 rounded mb-2 d-inline-block">
-              <i class="bi bi-heart-pulse text-primary fs-4"></i>
-            </div>
-            <h3 class="mb-0 text-primary">{{ estadisticas().totalObrasSociales }}</h3>
-            <small class="text-muted">Total</small>
-          </div>
+    <!-- Estadísticas Compactas -->
+    <div class="stats-container">
+      <div class="stat-item">
+        <div class="stat-indicator total"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().totalObrasSociales }}</div>
+          <div class="stat-label">Total</div>
         </div>
       </div>
       
-      <div class="col-6 col-lg-4 mb-3">
-        <div class="card border-0 shadow-sm">
-          <div class="card-body text-center">
-            <div class="bg-success bg-opacity-10 p-2 rounded mb-2 d-inline-block">
-              <i class="bi bi-check-circle text-success fs-4"></i>
-            </div>
-            <h3 class="mb-0 text-success">{{ estadisticas().obrasSocialesActivas }}</h3>
-            <small class="text-muted">Activas</small>
-          </div>
+      <div class="stat-item">
+        <div class="stat-indicator active"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().obrasSocialesActivas }}</div>
+          <div class="stat-label">Activas</div>
         </div>
       </div>
       
-      <div class="col-6 col-lg-4 mb-3">
-        <div class="card border-0 shadow-sm">
-          <div class="card-body text-center">
-            <div class="bg-secondary bg-opacity-10 p-2 rounded mb-2 d-inline-block">
-              <i class="bi bi-x-circle text-secondary fs-4"></i>
-            </div>
-            <h3 class="mb-0 text-secondary">{{ estadisticas().obrasSocialesInactivas }}</h3>
-            <small class="text-muted">Inactivas</small>
-          </div>
+      <div class="stat-item">
+        <div class="stat-indicator inactive"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().obrasSocialesInactivas }}</div>
+          <div class="stat-label">Inactivas</div>
         </div>
       </div>
     </div>
 
-    <!-- Filtros -->
-    <div class="row mb-4">
-      <div class="col-12">
-        <div class="btn-group flex-wrap" role="group">
+    <!-- Tabla con Filtros Integrados -->
+    <div class="table-section">
+      <div class="table-header">
+        <div class="table-title">Lista de Obras Sociales</div>
+        <div class="filter-controls">
           <button 
             type="button" 
-            class="btn btn-outline-secondary"
+            class="filter-btn"
             [class.active]="filtroActivo() === 'TODOS'"
             (click)="cambiarFiltro('TODOS')">
             Todas
           </button>
           <button 
             type="button" 
-            class="btn btn-outline-success"
+            class="filter-btn"
             [class.active]="filtroActivo() === 'ACTIVAS'"
             (click)="cambiarFiltro('ACTIVAS')">
             Activas
           </button>
           <button 
             type="button" 
-            class="btn btn-outline-secondary"
+            class="filter-btn"
             [class.active]="filtroActivo() === 'INACTIVAS'"
             (click)="cambiarFiltro('INACTIVAS')">
             Inactivas
           </button>
         </div>
       </div>
-    </div>
 
-    <!-- Tabla de Obras Sociales -->
-    <div class="row">
+      <!-- Loading State -->
       @if (loading()) {
-        <div class="col-12">
-          <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Cargando...</span>
-            </div>
-            <p class="mt-3 text-muted">Cargando obras sociales...</p>
-          </div>
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando datos...</p>
         </div>
-      } @else if (obrasSocialesFiltradas().length === 0) {
-        <div class="col-12">
-          <div class="text-center py-5">
-            <i class="bi bi-inbox fs-1 text-muted"></i>
-            <h5 class="mt-3 text-muted">No hay obras sociales</h5>
-            <p class="text-muted">No se encontraron obras sociales para el filtro seleccionado.</p>
-          </div>
+      } 
+      <!-- Empty State -->
+      @else if (obrasSocialesFiltradas().length === 0) {
+        <div class="empty-state">
+          <i class="bi bi-inbox"></i>
+          <h5>No hay obras sociales</h5>
+          <p>No se encontraron obras sociales para el filtro seleccionado.</p>
         </div>
-      } @else {
-        <div class="col-12">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body p-0">
-              <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                  <thead class="table-light">
-                    <tr>
-                      <th class="px-4 py-3">OBRA SOCIAL</th>
-                      <th class="px-4 py-3">ESTADO</th>
-                      <th class="px-4 py-3 text-center">ACCIONES</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (obraSocial of obrasSocialesFiltradas(); track obraSocial.id) {
-                      <tr>
-                        <td class="px-4 py-3">
-                          <div class="d-flex align-items-center">
-                            <div class="bg-info bg-opacity-10 rounded-circle p-2 me-3">
-                              <i class="bi bi-heart-pulse text-info"></i>
-                            </div>
-                            <div>
-                              <div class="fw-semibold">{{ obraSocial.descripcion }}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td class="px-4 py-3">
-                          <span [class]="getEstadoBadgeClass(obraSocial.activo)">
-                            {{ obraSocial.activo ? 'Activa' : 'Inactiva' }}
-                          </span>
-                        </td>
-                        <td class="px-4 py-3 text-center">
-                          <div class="btn-group" role="group">
-                            <!-- Botón Editar -->
-                            <button 
-                              type="button"
-                              class="btn btn-outline-primary btn-sm"
-                              (click)="editarObraSocial(obraSocial)"
-                              title="Editar Obra Social">
-                              <i class="bi bi-pencil"></i>
-                            </button>
-                            
-                            <!-- Botón Activar/Desactivar -->
-                            <button 
-                              type="button"
-                              [class]="obraSocial.activo ? 'btn btn-outline-warning btn-sm' : 'btn btn-outline-success btn-sm'"
-                              (click)="toggleEstado(obraSocial)"
-                              [title]="obraSocial.activo ? 'Desactivar Obra Social' : 'Activar Obra Social'">
-                              <i [class]="obraSocial.activo ? 'bi bi-pause-circle' : 'bi bi-play-circle'"></i>
-                            </button>
-                            
-                            <!-- Botón Eliminar -->
-                            <button 
-                              type="button"
-                              class="btn btn-outline-danger btn-sm"
-                              (click)="eliminarObraSocial(obraSocial)"
-                              title="Eliminar Obra Social">
-                              <i class="bi bi-trash"></i>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+      } 
+      <!-- Data Table -->
+      @else {
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Obra Social</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (obraSocial of obrasSocialesFiltradas(); track obraSocial.id) {
+                <tr>
+                  <td>
+                    <div class="obra-cell">
+                      <div class="obra-icon">
+                        <i class="bi bi-heart-pulse"></i>
+                      </div>
+                      <div class="obra-info">
+                        <div class="obra-name">{{ obraSocial.descripcion }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span [class]="getEstadoBadgeClass(obraSocial.activo)" class="status-badge">
+                      {{ obraSocial.activo ? 'Activa' : 'Inactiva' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="actions-cell">
+                      <button 
+                        type="button"
+                        class="action-btn btn-edit"
+                        (click)="abrirModalEditar(obraSocial)"
+                        title="Editar Obra Social">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      
+                      <button 
+                        type="button"
+                        [class]="obraSocial.activo ? 'action-btn btn-deactivate' : 'action-btn btn-activate'"
+                        (click)="toggleEstado(obraSocial)"
+                        [title]="obraSocial.activo ? 'Desactivar Obra Social' : 'Activar Obra Social'">
+                        <i [class]="obraSocial.activo ? 'bi bi-x-circle' : 'bi bi-check-circle'"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
         </div>
       }
     </div>
   }
- 
-  <!-- Loading State -->
-  @if (loading()) {
-    <div class="row">
-      <div class="col-12">
-        <div class="text-center py-5">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando...</span>
-          </div>
-          <p class="mt-3 text-muted">Cargando datos...</p>
-        </div>
-      </div>
-    </div>
-  }
+
+  <!-- Modal Component -->
+  <app-obras-sociales-modal
+    [isOpen]="modalOpen()"
+    [mode]="modalMode()"
+    [obraSocial]="selectedObraSocial()"
+    [existingDescriptions]="existingDescriptions()"
+    (save)="onSaveObraSocial($event)"
+    (close)="cerrarModal()">
+  </app-obras-sociales-modal>
 </div>

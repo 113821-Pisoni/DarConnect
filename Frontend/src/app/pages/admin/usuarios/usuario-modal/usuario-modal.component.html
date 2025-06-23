@@ -1,0 +1,226 @@
+<!-- src/app/components/usuario-modal/usuario-modal.component.html -->
+@if (isVisible) {
+  <div class="modal-backdrop fade show" (click)="onCancel()"></div>
+  <div class="modal fade show d-block" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+      <div class="modal-content border-0 shadow-lg">
+        
+        <!-- Modal Header -->
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title fw-bold text-dark">
+            <i class="bi bi-person-circle me-2 text-primary"></i>
+            {{ getModalTitle() }}
+          </h5>
+          <button 
+            type="button" 
+            class="btn-close" 
+            (click)="onCancel()"
+            [disabled]="loading()">
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body pt-2">
+          <form [formGroup]="usuarioForm" (ngSubmit)="onSubmit()">
+            
+            <!-- Formulario para Cambio de Contraseña -->
+            @if (modalType === 'password') {
+              <div class="form-floating mb-3 position-relative">
+                <input 
+                  [type]="showPassword() ? 'text' : 'password'"
+                  class="form-control pe-5"
+                  [class.is-invalid]="passwordControl?.invalid && passwordControl?.touched"
+                  id="password" 
+                  formControlName="password"
+                  placeholder="Nueva contraseña">
+                <label for="password">
+                  <i class="bi bi-key me-2"></i>Nueva Contraseña
+                </label>
+                <button 
+                  type="button"
+                  class="btn-password-toggle"
+                  (click)="togglePasswordVisibility()"
+                  tabindex="-1">
+                  <i [class]="showPassword() ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                </button>
+                @if (passwordControl?.invalid && passwordControl?.touched) {
+                  <div class="invalid-feedback">
+                    @if (passwordControl?.errors?.['required']) {
+                      La contraseña es obligatoria
+                    }
+                    @if (passwordControl?.errors?.['minlength']) {
+                      La contraseña debe tener mínimo 8 caracteres
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Formulario para Crear/Editar Usuario -->
+            @if (modalType === 'create' || modalType === 'edit') {
+              <!-- Campo Usuario -->
+              <div class="form-floating mb-3">
+                <input 
+                  type="text" 
+                  class="form-control"
+                  [class.is-invalid]="usuarioControl?.invalid && usuarioControl?.touched"
+                  id="usuario" 
+                  formControlName="usuario"
+                  placeholder="Nombre de usuario">
+                <label for="usuario">
+                  <i class="bi bi-person me-2"></i>Usuario
+                </label>
+                @if (usuarioControl?.invalid && usuarioControl?.touched) {
+                  <div class="invalid-feedback">
+                    @if (usuarioControl?.errors?.['required']) {
+                      El usuario es obligatorio
+                    }
+                    @if (usuarioControl?.errors?.['minlength']) {
+                      El usuario debe tener mínimo 3 caracteres
+                    }
+                  </div>
+                }
+              </div>
+
+              <!-- Campo Contraseña -->
+              @if (modalType === 'create') {
+                <div class="form-floating mb-3 position-relative">
+                  <input 
+                    [type]="showPassword() ? 'text' : 'password'"
+                    class="form-control pe-5"
+                    [class.is-invalid]="passwordControl?.invalid && passwordControl?.touched"
+                    id="password" 
+                    formControlName="password"
+                    placeholder="Contraseña">
+                  <label for="password">
+                    <i class="bi bi-key me-2"></i>Contraseña
+                  </label>
+                  <button 
+                    type="button"
+                    class="btn-password-toggle"
+                    (click)="togglePasswordVisibility()"
+                    tabindex="-1">
+                    <i [class]="showPassword() ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                  </button>
+                  @if (passwordControl?.invalid && passwordControl?.touched) {
+                    <div class="invalid-feedback">
+                      @if (passwordControl?.errors?.['required']) {
+                        La contraseña es obligatoria
+                      }
+                      @if (passwordControl?.errors?.['minlength']) {
+                        La contraseña debe tener mínimo 8 caracteres
+                      }
+                    </div>
+                  }
+                </div>
+              }
+
+              @if (modalType === 'edit') {
+                <div class="form-floating mb-3 position-relative">
+                  <input 
+                    [type]="showPassword() ? 'text' : 'password'"
+                    class="form-control pe-5"
+                    [class.is-invalid]="passwordControl?.invalid && passwordControl?.touched"
+                    id="password" 
+                    formControlName="password"
+                    placeholder="Nueva contraseña (opcional)">
+                  <label for="password">
+                    <i class="bi bi-key me-2"></i>Nueva Contraseña (opcional)
+                  </label>
+                  <button 
+                    type="button"
+                    class="btn-password-toggle"
+                    (click)="togglePasswordVisibility()"
+                    tabindex="-1">
+                    <i [class]="showPassword() ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                  </button>
+                  @if (passwordControl?.invalid && passwordControl?.touched) {
+                    <div class="invalid-feedback">
+                      @if (passwordControl?.errors?.['minlength']) {
+                        La contraseña debe tener mínimo 8 caracteres
+                      }
+                    </div>
+                  }
+                  <div class="form-text text-muted mt-1">
+                    <small><i class="bi bi-info-circle me-1"></i>Dejar vacío para mantener la contraseña actual</small>
+                  </div>
+                </div>
+              }
+
+              <!-- Campo Rol -->
+              <div class="form-floating mb-3">
+                <select 
+                  class="form-select"
+                  [class.is-invalid]="rolControl?.invalid && rolControl?.touched"
+                  id="rol" 
+                  formControlName="rol">
+                  <option [value]="RolUsuario.CHOFER">Chofer</option>
+                  <option [value]="RolUsuario.ADMINISTRADOR">Administrador</option>
+                </select>
+                <label for="rol">
+                  <i class="bi bi-shield me-2"></i>Rol
+                </label>
+                @if (rolControl?.invalid && rolControl?.touched) {
+                  <div class="invalid-feedback">
+                    Debe seleccionar un rol
+                  </div>
+                }
+              </div>
+
+              <!-- Campo Estado (solo para edición) -->
+              @if (modalType === 'edit') {
+                <div class="estado-container mb-3">
+                  <label class="form-label mb-2">
+                    <i class="bi bi-toggle-on me-2"></i>Estado del Usuario
+                  </label>
+                  <div class="form-check-container">
+                    <div class="form-check form-switch">
+                      <input 
+                        class="form-check-input" 
+                        type="checkbox" 
+                        role="switch"
+                        id="activo"
+                        formControlName="activo">
+                      <label class="form-check-label fw-semibold" for="activo">
+                        <span [class]="activoControl?.value ? 'text-success' : 'text-secondary'">
+                          <i [class]="activoControl?.value ? 'bi bi-check-circle me-1' : 'bi bi-x-circle me-1'"></i>
+                          {{ activoControl?.value ? 'Usuario Activo' : 'Usuario Inactivo' }}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              }
+            }
+
+            <!-- Botones del Modal -->
+            <div class="d-flex justify-content-end gap-2 mt-4">
+              <button 
+                type="button" 
+                class="btn btn-secondary px-4"
+                (click)="onCancel()"
+                [disabled]="loading()">
+                <i class="bi bi-x me-1"></i>
+                Cancelar
+              </button>
+              
+              <button 
+                type="submit" 
+                class="btn px-4"
+                [class]="modalType === 'password' ? 'btn-warning' : 'btn-primary'"
+                [disabled]="usuarioForm.invalid || loading()">
+                @if (loading()) {
+                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                }
+                <i class="bi me-1" 
+                   [class]="modalType === 'create' ? 'bi-plus-circle' : 
+                           modalType === 'edit' ? 'bi-pencil' : 'bi-key'"></i>
+                {{ getSubmitButtonText() }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+}

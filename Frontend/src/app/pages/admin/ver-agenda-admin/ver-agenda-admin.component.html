@@ -1,0 +1,83 @@
+<!-- ver-agenda-admin.component.html -->
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">Ver Agendas</h1>
+        <p class="page-subtitle">Visualizar agenda semanal por chofer</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="error-alert">
+      <i class="bi bi-exclamation-triangle"></i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!loadingChoferes() && !error()) {
+    <!-- Tabla con Filtros Integrados -->
+    <div class="table-section">
+      <!-- Filtros de Búsqueda -->
+      <div class="search-section">
+        <div class="search-controls">
+          <div class="search-group">
+            <label class="filter-label">Chofer:</label>
+            
+            @if (loadingChoferes()) {
+              <div class="search-input compact">
+                <i class="bi bi-person-badge"></i>
+                <div class="d-flex align-items-center">
+                  <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                  <span>Cargando choferes...</span>
+                </div>
+              </div>
+            } @else {
+              <div class="search-input compact">
+                <i class="bi bi-person-badge"></i>
+                <select 
+                  class="form-select chofer-select" 
+                  (change)="onChoferSeleccionado($event)"
+                  [value]="choferSeleccionado() || ''">
+                  <option value="">-- Seleccione un chofer --</option>
+                  @for (chofer of choferes(); track chofer.id) {
+                    <option [value]="chofer.id">
+                      {{ chofer.nombre }} {{ chofer.apellido }}
+                      @if (chofer.telefono) {
+                        - {{ chofer.telefono }}
+                      }
+                    </option>
+                  }
+                </select>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (loadingChoferes()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando choferes...</p>
+    </div>
+  }
+
+  <!-- Componente de Agenda (solo se muestra cuando hay chofer seleccionado) -->
+  @if (choferSeleccionado()) {
+    <app-agenda [choferId]="choferSeleccionado()"></app-agenda>
+  } @else if (!loadingChoferes() && !error()) {
+    <!-- Mensaje cuando no hay chofer seleccionado -->
+    <div class="empty-state">
+      <i class="bi bi-calendar-x"></i>
+      <h5>Seleccione un chofer para ver su agenda</h5>
+      <p>Elija un chofer del selector superior para visualizar su agenda semanal</p>
+    </div>
+  }
+</div>

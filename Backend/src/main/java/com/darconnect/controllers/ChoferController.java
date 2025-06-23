@@ -1,6 +1,7 @@
 package com.darconnect.controllers;
 
 import com.darconnect.dtos.ChoferDTO;
+import com.darconnect.dtos.EstadisticasChoferDTO;
 import com.darconnect.dtos.UsuarioDTO;
 import com.darconnect.models.Chofer;
 import com.darconnect.models.Usuario;
@@ -89,5 +90,17 @@ public class ChoferController {
                 .map(usuario -> modelMapper.map(usuario, UsuarioDTO.class))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(usuariosDTO);
+    }
+
+    @GetMapping("/{choferId}/estadisticas")
+    public ResponseEntity<EstadisticasChoferDTO> getEstadisticasChofer(
+            @PathVariable Long choferId,
+            @RequestParam(defaultValue = "semana") String periodo) {
+        try {
+            EstadisticasChoferDTO estadisticas = choferService.getEstadisticasChofer(choferId, periodo);
+            return ResponseEntity.ok(estadisticas);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

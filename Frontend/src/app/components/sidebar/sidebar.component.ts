@@ -30,7 +30,7 @@ export class SidebarComponent {
         items: [
           { icon: 'bi-truck', label: 'Mis Traslados', route: '/chofer/mis-traslados' },
           { icon: 'bi-calendar3', label: 'Agenda', route: '/chofer/agenda' },
-          { icon: 'bi-graph-up', label: 'Estadísticas', route: '/chofer/estadisticas' }
+          { icon: 'bi-graph-up', label: 'Estadísticas', route: '/chofer/reportes' }
         ]
       }
     ];
@@ -40,7 +40,9 @@ export class SidebarComponent {
           section: 'Principal',
           items: [
             { icon: 'bi bi-calendar-week', label: 'Traslados del Día', route: '/admin/traslados-dia' },
-            { icon: 'bi-speedometer2', label: 'Dashboard', route: '/admin/dashboard' }
+            { icon: 'bi-speedometer2', label: 'Dashboard', route: '/admin/dashboard' },
+            { icon: 'bi bi-calendar3', label: 'Ver Agendas', route: '/admin/ver-agendas' },
+            { icon: 'bi bi-clock-history', label: 'Consultar Historial', route: '/admin/historico' }
           ]
         },
         {
@@ -78,10 +80,26 @@ export class SidebarComponent {
         this.currentRole.set(user.role);
       }
     });
+
+    // Escuchar evento del navbar para toggle
+    window.addEventListener('toggleSidebar', () => {
+      this.toggleSidebar();
+    });
   }
 
   toggleSidebar() {
     this.isCollapsed.update(value => !value);
+  }
+
+  onNavLinkClick(event: Event) {
+    event.stopPropagation();
+    
+    // Si estamos en móvil, cerrar el sidebar después de navegar
+    if (window.innerWidth < 992) {
+      setTimeout(() => {
+        this.isCollapsed.set(true);
+      }, 100);
+    }
   }
 
   // Control de demo (eliminar en producción)

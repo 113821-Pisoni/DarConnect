@@ -1,11 +1,13 @@
 package com.darconnect.controllers;
 
-import com.darconnect.dtos.TrasladoCreateDTO;
-import com.darconnect.dtos.TrasladoDTO;
-import com.darconnect.dtos.TrasladoDelDiaDTO;
+import com.darconnect.dtos.*;
+import com.darconnect.entities.TrasladoEntity;
 import com.darconnect.models.EstadoTraslado;
 import com.darconnect.models.Traslado;
+import com.darconnect.services.TelegramServiceInt;
 import com.darconnect.services.TrasladoService;
+import com.darconnect.services.impl.GoogleMapsServiceImpl;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,13 @@ public class TrasladoController {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private GoogleMapsServiceImpl googleMapsService;
+
+    @Autowired
+    private TelegramServiceInt telegramService;
+
 
     @GetMapping("/{id}")
     public ResponseEntity<TrasladoDTO> getTraslado(@PathVariable Long id) {
@@ -121,15 +130,43 @@ public class TrasladoController {
     }
 
     @PostMapping("/{id}/iniciar")
-    public ResponseEntity<Void> iniciarTraslado(@PathVariable Long id) {
-        trasladoService.iniciarTraslado(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Map<String, Object>> iniciarTraslado(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> request) {
+        try {
+            Long usuarioId = Long.valueOf(request.get("usuarioId").toString());
+            trasladoService.iniciarTraslado(id, usuarioId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Traslado iniciado correctamente");
+            response.put("timestamp", java.time.LocalDateTime.now());
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
     }
 
     @PostMapping("/{id}/finalizar")
-    public ResponseEntity<Void> finalizarTraslado(@PathVariable Long id) {
-        trasladoService.finalizarTraslado(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Map<String, Object>> finalizarTraslado(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> request) {
+        try {
+            Long usuarioId = Long.valueOf(request.get("usuarioId").toString());
+            trasladoService.finalizarTraslado(id, usuarioId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Traslado finalizado correctamente");
+            response.put("timestamp", java.time.LocalDateTime.now());
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
     }
 
     @GetMapping("/chofer/{choferId}/semana")
@@ -162,10 +199,61 @@ public class TrasladoController {
     }
 
     @PostMapping("/{id}/cancelar")
-    public ResponseEntity<Void> cancelarTraslado(
+    public ResponseEntity<Map<String, Object>> cancelarTraslado(
             @PathVariable Long id,
-            @RequestParam String motivo) {
-        trasladoService.cancelarTraslado(id, motivo);
-        return ResponseEntity.ok().build();
+            @RequestBody Map<String, Object> request) {
+        try {
+            Long usuarioId = Long.valueOf(request.get("usuarioId").toString());
+            String motivo = request.get("motivo").toString();
+
+            trasladoService.cancelarTraslado(id, motivo, usuarioId);
+
+            try {
+                Traslado traslado = trasladoService.getTraslado(id);
+                String chatIdChofer = trasladoService.getChatIdChoferByTrasladoId(id);
+
+                // Obtener datos necesarios
+                String nombrePaciente = traslado.getNombreCompletoPaciente();
+
+
+                // Solo enviar si tiene chat ID configurado
+                if (chatIdChofer != null && !chatIdChofer.trim().isEmpty()) {
+                    telegramService.enviarMensajeCancelacion(chatIdChofer, nombrePaciente);
+                } else {
+                    System.out.println("⚠️ Chofer no tiene chat ID configurado - no se envió mensaje");
+                }
+
+            } catch (Exception e) {
+                System.err.println("Error al enviar mensaje de Telegram: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Traslado cancelado correctamente");
+            response.put("timestamp", java.time.LocalDateTime.now());
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    @PostMapping("/{id}/calcular-tiempo")
+    public ResponseEntity<GoogleMapsResponse> calcularTiempoTraslado(@PathVariable Long id) {
+        try {
+            Traslado traslado = trasladoService.getTraslado(id);
+
+            GoogleMapsResponse response = googleMapsService.calcularDistanciaYTiempo(
+                    traslado.getDireccionOrigen(),
+                    traslado.getDireccionDestino()
+            );
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new GoogleMapsResponse("Error calculando tiempo: " + e.getMessage()));
+        }
     }
 }

@@ -2,20 +2,23 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
   <div class="container-fluid">
     
-    <!-- Título -->
-    <span class="navbar-brand mb-0 h1">Panel de Control</span>
+    <div class="d-flex align-items-center">
+      <!-- Botón hamburguesa para móvil -->
+      @if (isMobile()) {
+        <button class="btn btn-link text-dark p-0 me-3" 
+                type="button"
+                (click)="toggleSidebar()">
+          <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+        </button>
+      }
+      
+      <!-- Título -->
+      <span class="navbar-brand mb-0 h1">Panel de Control</span>
+    </div>
 
     <!-- Lado derecho -->
     <div class="d-flex align-items-center">
       
-      <!-- Notificaciones -->
-      <button class="btn btn-link text-dark me-3 position-relative" type="button">
-        <i class="bi bi-bell" style="font-size: 1.2rem;"></i>
-        <!-- Badge de notificaciones (opcional) -->
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
-          3
-        </span>
-      </button>
 
       <!-- Dropdown Usuario -->
       <div class="dropdown">
@@ -55,24 +58,6 @@
         <ul class="dropdown-menu dropdown-menu-end" 
             [class.show]="isDropdownOpen()"
             (click)="$event.stopPropagation()">
-          
-          <li>
-            <button class="dropdown-item d-flex align-items-center" 
-                    type="button" 
-                    (click)="goToProfile()">
-              <i class="bi bi-person me-2"></i>
-              Mi Perfil
-            </button>
-          </li>
-          
-          <li>
-            <button class="dropdown-item d-flex align-items-center" 
-                    type="button" 
-                    (click)="goToSettings()">
-              <i class="bi bi-gear me-2"></i>
-              Configuración
-            </button>
-          </li>
           
           <li><hr class="dropdown-divider"></li>
           

@@ -7,6 +7,7 @@ import { ChoferService } from './chofer.service';
 import { switchMap } from 'rxjs/operators';
 import { TrasladoDelDia, TrasladoDTO, TrasladoCreateDTO, TrasladoUpdateDTO, EstadoTraslado } from '../interfaces/traslado.interface';
 import { AgendaSemanalResponse } from '../interfaces/agenda.interface';
+import { GoogleMapsResponse } from '../interfaces/googleMaps.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -147,23 +148,50 @@ export class TrasladoService {
   /**
    * Inicia un traslado
    */
-  iniciarTraslado(trasladoId: number): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${trasladoId}/iniciar`, {});
+  iniciarTraslado(trasladoId: number): Observable<any> {
+    const currentUser = this.authService.currentUserValue;
+    if (!currentUser) {
+      throw new Error('Usuario no autenticado');
+    }
+
+    const body = {
+      usuarioId: currentUser.id
+    };
+
+    return this.http.post<any>(`${this.apiUrl}/${trasladoId}/iniciar`, body);
   }
 
   /**
    * Finaliza un traslado
    */
-  finalizarTraslado(trasladoId: number): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${trasladoId}/finalizar`, {});
+  finalizarTraslado(trasladoId: number): Observable<any> {
+    const currentUser = this.authService.currentUserValue;
+    if (!currentUser) {
+      throw new Error('Usuario no autenticado');
+    }
+
+    const body = {
+      usuarioId: currentUser.id
+    };
+
+    return this.http.post<any>(`${this.apiUrl}/${trasladoId}/finalizar`, body);
   }
 
   /**
    * Cancela un traslado
    */
-  cancelarTraslado(id: number, motivo: string): Observable<void> {
-    let params = new HttpParams().set('motivo', motivo);
-    return this.http.post<void>(`${this.apiUrl}/${id}/cancelar`, null, { params });
+  cancelarTraslado(id: number, motivo: string): Observable<any> {
+    const currentUser = this.authService.currentUserValue;
+    if (!currentUser) {
+      throw new Error('Usuario no autenticado');
+    }
+
+    const body = {
+      usuarioId: currentUser.id,
+      motivo: motivo
+    };
+
+    return this.http.post<any>(`${this.apiUrl}/${id}/cancelar`, body);
   }
 
   // ===== MÉTODOS HELPER =====
@@ -296,4 +324,11 @@ export class TrasladoService {
         return 'Desconocido';
     }
   }
+
+  //Conexion GoogleMaps
+  calcularTiempoReal(trasladoId: number): Observable<GoogleMapsResponse> {
+  return this.http.post<GoogleMapsResponse>(`${this.apiUrl}/${trasladoId}/calcular-tiempo`, {});
+}
+
+
 }

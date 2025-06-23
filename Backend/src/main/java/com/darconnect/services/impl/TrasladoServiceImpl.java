@@ -13,7 +13,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -222,12 +221,11 @@ public class TrasladoServiceImpl implements TrasladoService {
     }
     @Override
     @Transactional
-    public void iniciarTraslado(Long trasladoId) {
+    public void iniciarTraslado(Long trasladoId, Long usuarioId) {
         TrasladoEntity traslado = trasladoRepository.findById(trasladoId)
                 .orElseThrow(() -> new EntityNotFoundException("Traslado no encontrado."));
 
-        // TODO: Obtener usuario logueado del contexto de seguridad
-        UsuarioEntity usuario = usuarioRepository.findById(1L) // TEMPORAL - cambiar por usuario real
+        UsuarioEntity usuario = usuarioRepository.findById(usuarioId) // TEMPORAL - cambiar por usuario real
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
         LocalDate fechaHoy = LocalDate.now();
@@ -264,15 +262,13 @@ public class TrasladoServiceImpl implements TrasladoService {
         }
     }
 
-    // ✅ MÉTODO CORREGIDO: finalizarTraslado()
     @Override
     @Transactional
-    public void finalizarTraslado(Long trasladoId) {
+    public void finalizarTraslado(Long trasladoId, Long usuarioId) {
         TrasladoEntity traslado = trasladoRepository.findById(trasladoId)
                 .orElseThrow(() -> new EntityNotFoundException("Traslado no encontrado."));
 
-        // TODO: Obtener usuario logueado del contexto de seguridad
-        UsuarioEntity usuario = usuarioRepository.findById(1L) // TEMPORAL - cambiar por usuario real
+        UsuarioEntity usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
         LocalDate fechaHoy = LocalDate.now();
@@ -301,14 +297,13 @@ public class TrasladoServiceImpl implements TrasladoService {
         }
     }
 
-    // ✅ MÉTODO ADICIONAL: cancelarTraslado() (opcional)
     @Override
     @Transactional
-    public void cancelarTraslado(Long trasladoId, String motivo) {
+    public void cancelarTraslado(Long trasladoId, String motivo, Long usuarioId) {
         TrasladoEntity traslado = trasladoRepository.findById(trasladoId)
                 .orElseThrow(() -> new EntityNotFoundException("Traslado no encontrado."));
 
-        UsuarioEntity usuario = usuarioRepository.findById(1L) // TEMPORAL
+        UsuarioEntity usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
         LocalDate fechaHoy = LocalDate.now();
@@ -403,4 +398,14 @@ public class TrasladoServiceImpl implements TrasladoService {
 
         return todosLosTraslados;
     }
+
+    @Override
+    public String getChatIdChoferByTrasladoId(Long trasladoId) {
+        Optional<TrasladoEntity> trasladoEntity = trasladoRepository.findByIdWithRelations(trasladoId);
+        if (trasladoEntity.isPresent()) {
+            return trasladoEntity.get().getAgenda().getChofer().getTelegramChatId();
+        }
+        return null;
+    }
+
 }

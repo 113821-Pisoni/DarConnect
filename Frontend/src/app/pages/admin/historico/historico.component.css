@@ -1,0 +1,412 @@
+/* Histórico de Traslados - Estilo UX/UI Optimizado COMPLETO */
+
+.container-fluid {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 24px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background-color: #fafafa;
+  min-height: 100vh;
+}
+
+/* Cards */
+.card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.card-header {
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 16px 20px;
+}
+
+.card-body {
+  padding: 20px 24px;
+}
+
+/* Títulos */
+.h4 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+}
+
+.text-muted.small {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Botones */
+.btn {
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.btn-primary {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.btn-outline-secondary {
+  border-color: #d1d5db;
+  color: #374151;
+  background: #ffffff;
+}
+
+.btn-outline-secondary:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.btn-outline-danger {
+  border-color: #ef4444;
+  color: #ef4444;
+  background: #ffffff;
+}
+
+.btn-outline-danger:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+/* Stats Container - exactamente como el modelo */
+.stats-container {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  min-width: 140px;
+  transition: all 0.15s ease;
+}
+
+.stat-item:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.stat-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.stat-indicator.total { background-color: #3b82f6; }
+.stat-indicator.active { background-color: #10b981; }
+.stat-indicator.inactive { background-color: #6b7280; }
+.stat-indicator.wheelchair { background-color: #8b5cf6; }
+.stat-indicator.insurance { background-color: #0ea5e9; }
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-number {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  margin-top: 2px;
+}
+
+/* Formularios */
+.form-control, .form-select {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.form-control-sm, .form-select-sm {
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Header de tabla mejorado */
+.card-header .d-flex {
+  gap: 16px;
+}
+
+.table-title-section {
+  flex: 1;
+}
+
+.table-controls {
+  white-space: nowrap;
+}
+
+.form-label-sm {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Dropdown "Mostrar" - Mejorar legibilidad */
+.card-header .form-select-sm {
+  min-width: 70px;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  color: #374151;
+}
+
+.card-header .form-select-sm:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+/* Tabla */
+.table {
+  font-size: 13px;
+  border-collapse: collapse;
+}
+
+.table-light {
+  background: #f9fafb;
+}
+
+.table th {
+  background: #f9fafb;
+  padding: 12px 20px;
+  font-weight: 500;
+  color: #374151;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table td {
+  padding: 12px 20px;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* Badges UNIFICADOS - igual que en choferes */
+.badge {
+  display: inline-block !important;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  width: auto !important;
+  max-width: fit-content !important;
+  line-height: 1.2;
+  vertical-align: middle;
+  margin: 0;
+}
+
+/* Colores específicos para estados - CONSISTENTES */
+.badge.bg-success,
+.status-badge.bg-success {
+  background: #d1fae5 !important;
+  color: #065f46 !important;
+}
+
+.badge.bg-danger,
+.status-badge.bg-danger {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+.badge.bg-warning,
+.status-badge.bg-warning {
+  background: #fef3c7 !important;
+  color: #92400e !important;
+}
+
+.badge.bg-primary,
+.status-badge.bg-primary {
+  background: #dbeafe !important;
+  color: #1e40af !important;
+}
+
+.badge.bg-secondary,
+.status-badge.bg-secondary {
+  background: #f3f4f6 !important;
+  color: #374151 !important;
+}
+
+/* Color púrpura */
+.text-purple {
+  color: #8b5cf6;
+}
+
+/* Paginación */
+.pagination .page-link {
+  border: 1px solid #d1d5db;
+  color: #374151;
+  border-radius: 4px;
+  margin: 0 2px;
+  font-size: 12px;
+  padding: 6px 8px;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+.pagination .page-item.disabled .page-link {
+  color: #9ca3af;
+  background-color: #f9fafb;
+}
+
+.pagination .page-link:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+/* Alerts */
+.alert-danger {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+  border-radius: 6px;
+}
+
+/* Spinner */
+.spinner-border {
+  width: 24px;
+  height: 24px;
+}
+
+/* Card Footer */
+.card-footer {
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  padding: 12px 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 16px;
+  }
+  
+  .card-body {
+    padding: 16px;
+  }
+  
+  .card-header {
+    padding: 12px 16px;
+  }
+  
+  /* Header responsive */
+  .card-header .d-flex {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 12px;
+    width: 100%;
+  }
+  
+  .table-controls {
+    align-self: flex-end;
+    width: auto;
+  }
+  
+  .form-label-sm {
+    font-size: 12px;
+  }
+  
+  .stats-container {
+    flex-direction: column;
+  }
+  
+  .stat-item {
+    min-width: auto;
+    flex: none;
+  }
+  
+  .table, .table thead, .table tbody, .table th, .table td, .table tr {
+    display: block;
+  }
+  
+  .table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  
+  .table tr {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    padding: 16px;
+    background: #ffffff;
+  }
+  
+  .table td {
+    border: none;
+    padding: 4px 0;
+    display: block;
+  }
+  
+  .table td:before {
+    font-weight: 600;
+    color: #374151;
+    display: block;
+    margin-bottom: 4px;
+    margin-top: 12px;
+  }
+  
+  .table td:nth-child(1):before { content: "Fecha/Hora:"; margin-top: 0; }
+  .table td:nth-child(2):before { content: "Fecha Traslado:"; }
+  .table td:nth-child(3):before { content: "Paciente:"; }
+  .table td:nth-child(4):before { content: "Chofer:"; }
+  .table td:nth-child(5):before { content: "Hora:"; }
+  .table td:nth-child(6):before { content: "Estado:"; }
+  .table td:nth-child(7):before { content: "Motivo:"; }
+}

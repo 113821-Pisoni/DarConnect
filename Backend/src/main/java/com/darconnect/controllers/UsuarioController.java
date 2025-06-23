@@ -68,9 +68,10 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}/password")
-    public ResponseEntity<Void> resetPassword(@PathVariable Long id, @RequestBody Map<String, String> request){
-        String nuevaPassword = request.get("password");
-        usuarioService.resetPassword(id, nuevaPassword);
+    public ResponseEntity<Void> updateUsuarioCompleto(@PathVariable Long id, @RequestBody UsuarioDTO request){
+        Usuario usuario = modelMapper.map(request, Usuario.class);
+        usuario.setId(id);
+        usuarioService.updateUsuario(usuario);
         return ResponseEntity.ok().build();
     }
 }

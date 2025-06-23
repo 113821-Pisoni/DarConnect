@@ -13,6 +13,7 @@ export interface ObraSocialCreateDTO {
 }
 
 export interface ObraSocialUpdateDTO {
+  id?: number;
   descripcion?: string;
   activo?: boolean;
 }

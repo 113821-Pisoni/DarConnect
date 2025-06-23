@@ -2,7 +2,7 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TrasladoService } from '../../../services/traslado.service';
-import { TrasladoDelDia,EstadoTraslado } from '../../../interfaces/traslado.interface';
+import { TrasladoDelDia, EstadoTraslado, ESTADOS_TRASLADO } from '../../../interfaces/traslado.interface';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -24,7 +24,7 @@ export class TrasladosDiaComponent implements OnInit {
     const stats = this.traslados().reduce(
       (acc, traslado) => {
         const estado = traslado.estadoActual;
-        switch(estado) {
+        switch (estado) {
           case EstadoTraslado.PENDIENTE:
             acc.pendientes++;
             break;
@@ -42,7 +42,6 @@ export class TrasladosDiaComponent implements OnInit {
       },
       { pendientes: 0, iniciados: 0, finalizados: 0, cancelados: 0 }
     );
-    console.log('Estadísticas calculadas:', stats); // DEBUG
     return stats;
   });
 
@@ -64,10 +63,19 @@ export class TrasladosDiaComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     
-    // Usar el endpoint que existía antes - necesitas crear TrasladosAdminService o usar endpoint directo
-    console.warn('Método getTrasladosDelDiaAdmin() removido - usar TrasladosAdminService original');
-    this.loading.set(false);
-    this.error.set('Servicio de traslados del día temporalmente deshabilitado');
+    const fechaHoy = new Date().toLocaleDateString('sv-SE');
+    
+    this.trasladoService.getTrasladosDelDiaAdmin(fechaHoy).subscribe({
+      next: (traslados) => {
+        this.traslados.set(traslados);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Error al cargar traslados:', err);
+        this.error.set('Error al cargar los traslados del día. Verifique la conexión con el servidor.');
+        this.loading.set(false);
+      }
+    });
   }
 
   cambiarFiltro(filtro: string) {
@@ -77,12 +85,64 @@ export class TrasladosDiaComponent implements OnInit {
   contactarPaciente(telefono: string) {
     if (telefono) {
       window.open(`tel:${telefono}`);
+    } else {
+      Swal.fire({
+        title: 'Sin teléfono',
+        text: 'No hay número de teléfono registrado para este paciente',
+        icon: 'warning',
+        confirmButtonColor: '#6c757d'
+      });
     }
   }
 
   contactarChofer(idTraslado: number) {
-    // Por implementar - obtener teléfono del chofer
-    console.log('Contactar chofer del traslado:', idTraslado);
+    const traslado = this.traslados().find(t => t.idTraslado === idTraslado);
+    
+    if (traslado) {
+      if (traslado.telefonoChofer) {
+        window.open(`tel:${traslado.telefonoChofer}`);
+        return;
+      }
+      
+      const trasladoAny = traslado as any;
+      if (trasladoAny.telefono_chofer) {
+        window.open(`tel:${trasladoAny.telefono_chofer}`);
+        return;
+      }
+      
+      if (trasladoAny.choferTelefono) {
+        window.open(`tel:${trasladoAny.choferTelefono}`);
+        return;
+      }
+      
+      if (traslado.nombreCompletoChofer) {
+        Swal.fire({
+          title: 'Información del Chofer',
+          html: `
+            <div class="text-start">
+              <p><strong>Chofer:</strong> ${traslado.nombreCompletoChofer}</p>
+              <p><strong>Estado del traslado:</strong> 
+                <span class="badge bg-${ESTADOS_TRASLADO[traslado.estadoActual].color}">
+                  ${this.getEstadoLabel(traslado.estadoActual)}
+                </span>
+              </p>
+              <p class="text-muted small">No hay teléfono de contacto registrado</p>
+            </div>
+          `,
+          icon: 'info',
+          confirmButtonColor: '#6c757d',
+          confirmButtonText: 'Entendido'
+        });
+        return;
+      }
+    }
+    
+    Swal.fire({
+      title: 'Sin información',
+      text: 'No hay información de contacto disponible para este chofer',
+      icon: 'warning',
+      confirmButtonColor: '#6c757d'
+    });
   }
 
   cancelarTraslado(idTraslado: number) {
@@ -104,7 +164,6 @@ export class TrasladosDiaComponent implements OnInit {
       }
     }).then((result) => {
       if (result.isConfirmed && result.value) {
-        // Mostrar loading
         Swal.fire({
           title: 'Cancelando...',
           text: 'Por favor espere',
@@ -114,7 +173,6 @@ export class TrasladosDiaComponent implements OnInit {
           }
         });
 
-        // Llamar a la API usando el servicio unificado
         this.trasladoService.cancelarTraslado(idTraslado, result.value.trim()).subscribe({
           next: () => {
             Swal.fire({
@@ -123,7 +181,6 @@ export class TrasladosDiaComponent implements OnInit {
               icon: 'success',
               confirmButtonColor: '#198754'
             });
-            // Recargar datos
             this.cargarTraslados();
           },
           error: (err) => {
@@ -146,17 +203,15 @@ export class TrasladosDiaComponent implements OnInit {
     }
     
     if (typeof horaProgramada === 'string') {
-      return horaProgramada.substring(0, 5); // "HH:mm:ss" -> "HH:mm"
+      return horaProgramada.substring(0, 5);
     }
     
-    // Si viene como array [hora, minuto]
     if (Array.isArray(horaProgramada) && horaProgramada.length >= 2) {
       const hora = horaProgramada[0].toString().padStart(2, '0');
       const minuto = horaProgramada[1].toString().padStart(2, '0');
       return `${hora}:${minuto}`;
     }
     
-    // Si viene como objeto {hour, minute, second, nano}
     if (horaProgramada.hour !== undefined && horaProgramada.minute !== undefined) {
       const hora = horaProgramada.hour.toString().padStart(2, '0');
       const minuto = horaProgramada.minute.toString().padStart(2, '0');
@@ -167,23 +222,18 @@ export class TrasladosDiaComponent implements OnInit {
   }
 
   getBadgeClass(estado: EstadoTraslado): string {
-    const classes = {
-      [EstadoTraslado.PENDIENTE]: 'badge bg-warning',
-      [EstadoTraslado.INICIADO]: 'badge bg-success',
-      [EstadoTraslado.FINALIZADO]: 'badge bg-primary',
-      [EstadoTraslado.CANCELADO]: 'badge bg-danger'
-    };
-    return classes[estado] || 'badge bg-secondary';
+    const estadoInfo = ESTADOS_TRASLADO[estado];
+    return estadoInfo ? `badge bg-${estadoInfo.color}` : 'badge bg-secondary';
   }
 
   getEstadoLabel(estado: EstadoTraslado): string {
-    const labels = {
-      [EstadoTraslado.PENDIENTE]: 'Pendiente',
-      [EstadoTraslado.INICIADO]: 'En Curso',
-      [EstadoTraslado.FINALIZADO]: 'Finalizado',
-      [EstadoTraslado.CANCELADO]: 'Cancelado'
-    };
-    return labels[estado] || estado;
+    const estadoInfo = ESTADOS_TRASLADO[estado];
+    return estadoInfo ? estadoInfo.label : estado;
+  }
+
+  getEstadoIcon(estado: EstadoTraslado): string {
+    const estadoInfo = ESTADOS_TRASLADO[estado];
+    return estadoInfo ? estadoInfo.icon : 'question-circle';
   }
 
   fechaHoy(): string {
@@ -193,5 +243,32 @@ export class TrasladosDiaComponent implements OnInit {
       month: 'long', 
       day: 'numeric' 
     });
+  }
+
+  refrescarDatos() {
+    this.cargarTraslados();
+  }
+
+  cargarTrasladosPorEstado(estado?: EstadoTraslado) {
+    this.loading.set(true);
+    this.error.set(null);
+    
+    const fechaHoy = new Date().toISOString().split('T')[0];
+    
+    this.trasladoService.getTrasladosDelDiaAdmin(fechaHoy, estado).subscribe({
+      next: (traslados) => {
+        this.traslados.set(traslados);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Error al cargar traslados filtrados:', err);
+        this.error.set('Error al cargar los traslados filtrados');
+        this.loading.set(false);
+      }
+    });
+  }
+
+  trackByTrasladoId(index: number, traslado: TrasladoDelDia): number {
+    return traslado.idTraslado;
   }
 }

@@ -12,6 +12,11 @@ import { PacientesComponent } from './pages/admin/pacientes/pacientes.component'
 import { ObrasSocialesComponent } from './pages/admin/obras-sociales/obras-sociales.component';
 import { AgendasComponent } from './pages/admin/agendas/agendas.component';
 import { TrasladosComponent } from './pages/admin/traslados/traslados.component';
+import { ReportesComponent } from './pages/chofer/reportes/reportes/reportes.component';
+import { AdminDashboardComponent } from './pages/admin/dashboard/dashboard.component';
+import { VerAgendaAdminComponent } from './pages/admin/ver-agenda-admin/ver-agenda-admin.component';
+import { HistoricoTrasladoService } from './services/historico.service';
+import { HistoricoTrasladosComponent } from './pages/admin/historico/historico.component';
 
 export const routes: Routes = [
   // Ruta raíz - redirige al login
@@ -44,10 +49,9 @@ export const routes: Routes = [
         component: AgendaComponent 
       },
       { 
-        path: 'estadisticas', 
-        component: SimplePageComponent 
+        path: 'reportes', 
+        component: ReportesComponent 
       },
-      // TODO: Crear páginas específicas
       // { path: 'agenda', component: AgendaComponent },
       // { path: 'estadisticas', component: EstadisticasComponent },
       
@@ -63,6 +67,10 @@ export const routes: Routes = [
       { 
         path: 'traslados-dia', 
         component: TrasladosDiaComponent 
+      },
+      { 
+        path: 'ver-agendas', 
+        component: VerAgendaAdminComponent 
       },
       { 
       path: 'usuarios', 
@@ -90,12 +98,12 @@ export const routes: Routes = [
       },
       { 
         path: 'dashboard', 
-        component: SimplePageComponent 
+        component: AdminDashboardComponent 
       },
-      // TODO: Crear páginas de administrador
-      // { path: 'choferes', component: ChoferesComponent },
-      // { path: 'pacientes', component: PacientesComponent },
-      // { path: 'traslados', component: TrasladosComponent },
+      { 
+        path: 'historico', 
+        component: HistoricoTrasladosComponent 
+      },
       
       { path: '', redirectTo: 'traslados-dia', pathMatch: 'full' }
     ]

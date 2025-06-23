@@ -1,0 +1,299 @@
+/* admin-dashboard.component.css - Bootstrap 5 + Simple Responsive */
+
+/* Container */
+.container-fluid {
+  max-width: 1400px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background-color: #fafafa;
+  min-height: 100vh;
+}
+
+/* Cards */
+.card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  transition: all 0.15s ease;
+}
+
+.card:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+.card-header {
+  background: #f9fafb !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+/* Dashboard Title */
+.dashboard-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+}
+
+.dashboard-subtitle {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Form Select */
+.form-select {
+  min-width: 140px;
+  font-size: 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #374151;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Loading & Error */
+.spinner-border {
+  width: 24px;
+  height: 24px;
+  border-width: 2px;
+}
+
+.alert {
+  border-radius: 6px;
+  font-size: 14px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.btn-outline-danger {
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+/* Stats Container - Igual que dashboard chofer */
+.stats-container {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  min-width: 160px;
+  transition: all 0.15s ease;
+  flex: 1;
+}
+
+.stat-item:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.stat-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.stat-indicator.bg-primary { background-color: #3b82f6; }
+.stat-indicator.bg-success { background-color: #10b981; }
+.stat-indicator.bg-danger { background-color: #ef4444; }
+.stat-indicator.bg-info { background-color: #06b6d4; }
+.stat-indicator.bg-warning { background-color: #f59e0b; }
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-number {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  margin-top: 2px;
+}
+
+/* Charts */
+.chart-container {
+  position: relative;
+  height: 300px;
+  padding: 0;
+}
+
+.chart-container canvas {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Table */
+.table {
+  margin: 0;
+  font-size: 14px;
+}
+
+.table thead th {
+  background: #f9fafb;
+  border-top: none;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  padding: 12px 16px;
+}
+
+.table tbody td {
+  border-top: 1px solid #f3f4f6;
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+
+.table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+/* Chofer Avatar */
+.chofer-avatar {
+  width: 32px;
+  height: 32px;
+  background: #dbeafe;
+  color: #3b82f6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* Badges */
+.badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.badge.bg-success { background-color: #10b981 !important; }
+.badge.bg-danger { background-color: #ef4444 !important; }
+.badge.bg-warning { background-color: #f59e0b !important; }
+
+/* Text Colors */
+.text-primary { color: #3b82f6 !important; }
+.text-muted { color: #6b7280 !important; }
+
+/* Empty State */
+.display-1 {
+  font-size: 4rem;
+  opacity: 0.3;
+}
+
+/* ======================== */
+/* MOBILE RESPONSIVE */
+/* ======================== */
+@media (max-width: 768px) {
+  /* Dashboard title más pequeño */
+  .dashboard-title {
+    font-size: 18px;
+  }
+  
+  /* Ocultar subtitle en mobile */
+  .dashboard-subtitle {
+    display: none;
+  }
+  
+  /* Select full width */
+  .form-select {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  /* Metric cards - layout vertical centrado */
+  .metric-card .card-body {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+  
+  /* Iconos más pequeños en mobile */
+  .metric-icon {
+    width: 12px;
+    height: 12px;
+    margin-bottom: 4px;
+  }
+  
+  /* Números más grandes */
+  .metric-number {
+    font-size: 24px;
+    font-weight: 700;
+  }
+  
+  /* Charts más bajos */
+  .chart-container {
+    height: 200px;
+  }
+  
+  /* Table más compacta */
+  .table {
+    font-size: 12px;
+  }
+  
+  .table thead th,
+  .table tbody td {
+    padding: 8px 4px;
+  }
+  
+  /* Avatar más pequeño */
+  .chofer-avatar {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+  
+  /* Badges más pequeños */
+  .badge {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+  
+  /* Empty state más pequeño */
+  .display-1 {
+    font-size: 2.5rem;
+  }
+}

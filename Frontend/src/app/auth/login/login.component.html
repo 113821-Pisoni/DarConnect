@@ -55,7 +55,6 @@
             <label for="recordarme">Recordarme</label>
           </div>
           
-          <a class="forgot-password" href="#">¿Olvidaste tu contraseña?</a>
         </div>
         
         <button type="submit" class="login-button" [disabled]="loading">
@@ -65,9 +64,7 @@
           Iniciar sesión
         </button>
         
-        @if (error) {
-          <div class="error-message">{{ error }}</div>
-        }
+
       </form>
     </div>
   </div>

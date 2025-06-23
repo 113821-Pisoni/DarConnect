@@ -33,7 +33,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public List<Usuario> getUsuariosList() {
-        List<UsuarioEntity> usuarioEntityList = usuarioRepository.findAllActivos(); // Solo activos
+        List<UsuarioEntity> usuarioEntityList = usuarioRepository.findAll();
         List<Usuario> usuarios = new ArrayList<>();
         for(UsuarioEntity usuarioEntity : usuarioEntityList) {
             usuarios.add(modelMapper.map(usuarioEntity, Usuario.class));
@@ -65,6 +65,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         UsuarioEntity usuarioEntity = usuarioEntityOptional.get();
 
+        if (usuario.getUsuario() != null) {
+            usuarioEntity.setUsuario(usuario.getUsuario());
+        }
         if (usuario.getPassword() != null) {
             usuarioEntity.setPassword(usuario.getPassword());
         }

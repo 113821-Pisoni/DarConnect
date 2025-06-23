@@ -29,6 +29,7 @@ export interface PacienteCreateDTO {
 }
 
 export interface PacienteUpdateDTO {
+  id?: number;
   nombre?: string;
   apellido?: string;
   dni?: string;

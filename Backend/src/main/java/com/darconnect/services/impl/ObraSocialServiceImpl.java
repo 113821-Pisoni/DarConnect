@@ -20,8 +20,6 @@ public class ObraSocialServiceImpl implements ObraSocialService {
     ObraSocialRepository obraSocialRepository;
     @Autowired
     ModelMapper modelMapper;
-    @Autowired
-    private PacienteRepository pacienteRepository;
 
     @Override
     public ObraSocial getObraSocial(Long id) {

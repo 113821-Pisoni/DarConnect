@@ -29,6 +29,7 @@ export interface ChoferCreateDTO {
 }
 
 export interface ChoferUpdateDTO {
+  id?: number;
   nombre?: string;
   apellido?: string;
   dni?: string;
@@ -51,4 +52,29 @@ export interface UsuarioDisponible {
   id: number;
   usuario: string;
   rol: string;
+}
+
+// src/app/interfaces/estadisticas.interface.ts
+export interface EstadisticasChoferResponse {
+  trasladosHoy: number;        // Total en el período
+  trasladosSemana: number;     // Finalizados
+  trasladosMes: number;        // Cancelados
+  conSillaRuedas: number;
+  sinSillaRuedas: number;
+  trasladosPorDia: TrasladoPorDia[];
+  porcentajeExito: number;
+  porcentajeCancelacion: number;
+}
+
+export interface TrasladoPorDia {
+  dia: string;
+  cantidad: number;
+}
+
+export interface MetricaCard {
+  titulo: string;
+  valor: number | string;
+  icono: string;
+  color: string;
+  sufijo?: string;
 }

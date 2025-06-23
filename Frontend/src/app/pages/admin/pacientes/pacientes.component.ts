@@ -1,27 +1,43 @@
-// src/app/pages/admin/pacientes/pacientes.component.ts
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PacientesService } from '../../../services/pacientes.service';
 import { ObrasSocialesService } from '../../../services/obras-sociales.service';
 import { ObraSocial } from '../../../interfaces/obraSocial.interface';
-import { Paciente, PacienteCreateDTO, EstadisticasPacientes } from '../../../interfaces/paciente.interface';
+import { Paciente, PacienteCreateDTO, PacienteUpdateDTO } from '../../../interfaces/paciente.interface';
+import { PacientesModalComponent, ModalMode } from './paciente-modal/paciente-modal.component';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-pacientes',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PacientesModalComponent],
   templateUrl: './pacientes.component.html',
   styleUrls: ['./pacientes.component.css']
 })
 export class PacientesComponent implements OnInit {
-  obraSocialSeleccionada: number | '' = '';
+  
+  @ViewChild(PacientesModalComponent) modal!: PacientesModalComponent;
+
   // Signals
   pacientes = signal<Paciente[]>([]);
   obrasSociales = signal<ObraSocial[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
   filtroActivo = signal('TODOS');
+  
+  // Modal signals
+  modalOpen = signal(false);
+  modalMode = signal<ModalMode>('create');
+  selectedPaciente = signal<Paciente | null>(null);
+
+  // Computed para identificar la obra social "Sin obra social"
+  obraSocialSinCobertura = computed(() => {
+    return this.obrasSociales().find(os => 
+      os.descripcion.toLowerCase().includes('sin obra social') ||
+      os.descripcion.toLowerCase().includes('particular') ||
+      os.descripcion.toLowerCase().includes('sin cobertura')
+    );
+  });
 
   // Computed
   pacientesFiltrados = computed(() => {
@@ -33,7 +49,16 @@ export class PacientesComponent implements OnInit {
       if (filtro === 'ACTIVOS') return p.activo;
       if (filtro === 'INACTIVOS') return !p.activo;
       if (filtro === 'SILLA_RUEDAS') return p.sillaRueda;
-      if (filtro === 'CON_OBRA_SOCIAL') return p.idObraSocial != null;
+      if (filtro === 'CON_OBRA_SOCIAL') {
+        // Pacientes que tienen obra social diferente a "Sin obra social"
+        const sinObraSocial = this.obraSocialSinCobertura();
+        return p.idObraSocial != null && p.idObraSocial !== sinObraSocial?.id;
+      }
+      if (filtro === 'SIN_OBRA_SOCIAL') {
+        // Pacientes que tienen la obra social "Sin obra social"
+        const sinObraSocial = this.obraSocialSinCobertura();
+        return p.idObraSocial === sinObraSocial?.id;
+      }
       return true;
     });
   });
@@ -43,15 +68,28 @@ export class PacientesComponent implements OnInit {
     const activos = this.pacientes().filter(p => p.activo).length;
     const inactivos = total - activos;
     const conSillaRuedas = this.pacientes().filter(p => p.sillaRueda).length;
-    const conObraSocial = this.pacientes().filter(p => p.idObraSocial != null).length;
+    
+    // Calcular pacientes con y sin obra social
+    const sinObraSocial = this.obraSocialSinCobertura();
+    const conObraSocial = this.pacientes().filter(p => 
+      p.idObraSocial != null && p.idObraSocial !== sinObraSocial?.id
+    ).length;
+    const sinObraSocialCount = this.pacientes().filter(p => 
+      p.idObraSocial === sinObraSocial?.id
+    ).length;
     
     return { 
       totalPacientes: total, 
       pacientesActivos: activos, 
       pacientesInactivos: inactivos, 
       conSillaRuedas, 
-      conObraSocial 
+      conObraSocial,
+      sinObraSocial: sinObraSocialCount
     };
+  });
+
+  existingDnis = computed(() => {
+    return this.pacientes().map(p => p.dni);
   });
 
   constructor(
@@ -80,7 +118,6 @@ export class PacientesComponent implements OnInit {
     return new Promise((resolve, reject) => {
       this.pacientesService.getPacientes().subscribe({
         next: (pacientes) => {
-          console.log('Pacientes recibidos:', pacientes); // Para debug
           this.pacientes.set(pacientes);
           resolve();
         },
@@ -113,161 +150,99 @@ export class PacientesComponent implements OnInit {
     this.filtroActivo.set(filtro);
   }
 
-  async crearPaciente() {
-    const obrasSociales = this.obrasSociales();
-    const opcionesObrasSociales = obrasSociales
-      .map(os => `<option value="${os.id}">${os.descripcion}</option>`)
-      .join('');
-console.log(this.obrasSociales())
-    const { value: formValues } = await Swal.fire({
-      title: 'Nuevo Paciente',
-      html: `
-        <div class="text-start mt-3">
-          <div class="row">
-            <div class="col-6">
-              <div class="form-floating mb-3">
-                <input type="text" class="form-control" id="nombre" placeholder="Nombre">
-                <label for="nombre"><i class="bi bi-person me-2"></i>Nombre</label>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="form-floating mb-3">
-                <input type="text" class="form-control" id="apellido" placeholder="Apellido">
-                <label for="apellido">Apellido</label>
-              </div>
-            </div>
-          </div>
-          
-          <div class="row">
-            <div class="col-6">
-              <div class="form-floating mb-3">
-                <input type="text" class="form-control" id="dni" placeholder="DNI">
-                <label for="dni"><i class="bi bi-credit-card me-2"></i>DNI</label>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="form-floating mb-3">
-                <input type="tel" class="form-control" id="telefono" placeholder="Teléfono">
-                <label for="telefono"><i class="bi bi-telephone me-2"></i>Teléfono</label>
-              </div>
-            </div>
-          </div>
-          
-          <div class="form-floating mb-3">
-            <input type="email" class="form-control" id="email" placeholder="Email">
-            <label for="email"><i class="bi bi-envelope me-2"></i>Email</label>
-          </div>
-          
-          <div class="row">
-            <div class="col-8">
-              <div class="form-floating mb-3">
-                <input type="text" class="form-control" id="direccion" placeholder="Dirección">
-                <label for="direccion"><i class="bi bi-geo-alt me-2"></i>Dirección</label>
-              </div>
-            </div>
-            <div class="col-4">
-              <div class="form-floating mb-3">
-                <input type="text" class="form-control" id="ciudad" placeholder="Ciudad">
-                <label for="ciudad">Ciudad</label>
-              </div>
-            </div>
-          </div>
+  // Modal methods
+  abrirModalCrear() {
+    this.modalMode.set('create');
+    this.selectedPaciente.set(null);
+    this.modalOpen.set(true);
+  }
 
-           <div class="form-floating mb-3">
-              <select class="form-select" id="obraSocial">
-                <option value="">Sin obra social</option>
-                ${this.obrasSociales().map(obra => 
-                  `<option value="${obra.id}">${obra.descripcion}</option>`
-                ).join('')}
-              </select>
-              <label for="obraSocial">
-                <i class="bi bi-heart-pulse me-2"></i>Obra Social
-              </label>
-            </div>
-          
-          
-          <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" id="sillaRueda">
-            <label class="form-check-label" for="sillaRueda">
-              <i class="bi bi-person-wheelchair me-2"></i>Requiere silla de ruedas
-            </label>
-          </div>
+  abrirModalEditar(paciente: Paciente) {
+    this.modalMode.set('edit');
+    this.selectedPaciente.set(paciente);
+    this.modalOpen.set(true);
+  }
 
-          <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" id="activo" checked>
-            <label class="form-check-label" for="activo">
-              Paciente activo
-            </label>
-          </div>
-        </div>
-      `,
-      width: '600px',
-      showCancelButton: true,
-      confirmButtonText: '<i class="bi bi-check me-1"></i>Crear',
-      cancelButtonText: '<i class="bi bi-x me-1"></i>Cancelar',
-      confirmButtonColor: '#3b82f6',
-      cancelButtonColor: '#6b7280',
-      preConfirm: () => {
-        const nombre = (document.getElementById('nombre') as HTMLInputElement).value.trim();
-        const apellido = (document.getElementById('apellido') as HTMLInputElement).value.trim();
-        const dni = (document.getElementById('dni') as HTMLInputElement).value.trim();
-        const telefono = (document.getElementById('telefono') as HTMLInputElement).value.trim();
-        const email = (document.getElementById('email') as HTMLInputElement).value.trim();
-        const direccion = (document.getElementById('direccion') as HTMLInputElement).value.trim();
-        const ciudad = (document.getElementById('ciudad') as HTMLInputElement).value.trim();
-        const obraSocial = (document.getElementById('obraSocial') as HTMLSelectElement).value;
-        const sillaRueda = (document.getElementById('sillaRueda') as HTMLInputElement).checked;
-        const activo = (document.getElementById('activo') as HTMLInputElement).checked;
+  cerrarModal() {
+    this.modalOpen.set(false);
+  }
+
+  onSavePaciente(data: PacienteCreateDTO | PacienteUpdateDTO) {
+    if (this.modalMode() === 'create') {
+      this.crearPaciente(data as PacienteCreateDTO);
+    } else {
+      this.actualizarPaciente(data as PacienteUpdateDTO);
+    }
+  }
+
+  private crearPaciente(pacienteData: PacienteCreateDTO) {
+    this.pacientesService.createPaciente(pacienteData).subscribe({
+      next: (pacienteCreado) => {
+        this.modal.finishLoading();
+        this.cerrarModal();
         
-        if (!nombre || !apellido || !dni) {
-          Swal.showValidationMessage('Nombre, apellido y DNI son obligatorios');
-          return false;
-        }
-
-        // Validar formato de email si se proporciona
-        if (email && !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-          Swal.showValidationMessage('El formato del email no es válido');
-          return false;
+        Swal.fire({
+          title: '¡Paciente Creado!',
+          text: 'El paciente ha sido creado exitosamente',
+          icon: 'success',
+          confirmButtonColor: '#198754'
+        });
+        
+        this.cargarPacientes();
+      },
+      error: (err) => {
+        console.error('Error al crear paciente:', err);
+        this.modal.finishLoading();
+        
+        let mensaje = 'No se pudo crear el paciente. Intente nuevamente.';
+        if (err.status === 400 && err.error?.message?.includes('DNI')) {
+          mensaje = 'Ya existe un paciente con ese DNI.';
         }
         
-        return { 
-          nombre, 
-          apellido, 
-          dni, 
-          telefono: telefono || undefined,
-          email: email || undefined,
-          direccion: direccion || undefined,
-          ciudad: ciudad || undefined,
-          idObraSocial: obraSocial ? parseInt(obraSocial) : null,
-          sillaRueda,
-          activo
-        };
+        Swal.fire({
+          title: 'Error',
+          text: mensaje,
+          icon: 'error',
+          confirmButtonColor: '#dc3545'
+        });
       }
     });
+  }
 
-    if (formValues) {
-      this.pacientesService.createPaciente(formValues).subscribe({
-        next: (pacienteCreado) => {
-          console.log('Paciente creado:', pacienteCreado); // Para debug
-          Swal.fire({
-            title: '¡Paciente Creado!',
-            text: 'El paciente ha sido creado exitosamente',
-            icon: 'success',
-            confirmButtonColor: '#198754'
-          });
-          this.cargarPacientes();
-        },
-        error: (err) => {
-          console.error('Error al crear paciente:', err);
-          Swal.fire({
-            title: 'Error',
-            text: 'No se pudo crear el paciente. ' + (err.error?.message || 'Intente nuevamente.'),
-            icon: 'error',
-            confirmButtonColor: '#dc3545'
-          });
+  private actualizarPaciente(pacienteData: PacienteUpdateDTO) {
+    if (!pacienteData.id) return;
+    
+    this.pacientesService.updatePaciente(pacienteData.id, pacienteData).subscribe({
+      next: (pacienteActualizado) => {
+        this.modal.finishLoading();
+        this.cerrarModal();
+        
+        Swal.fire({
+          title: '¡Paciente Actualizado!',
+          text: 'El paciente ha sido actualizado exitosamente',
+          icon: 'success',
+          confirmButtonColor: '#198754'
+        });
+        
+        this.cargarPacientes();
+      },
+      error: (err) => {
+        console.error('Error al actualizar paciente:', err);
+        this.modal.finishLoading();
+        
+        let mensaje = 'No se pudo actualizar el paciente. Intente nuevamente.';
+        if (err.status === 400 && err.error?.message?.includes('DNI')) {
+          mensaje = 'Ya existe un paciente con ese DNI.';
         }
-      });
-    }
+        
+        Swal.fire({
+          title: 'Error',
+          text: mensaje,
+          icon: 'error',
+          confirmButtonColor: '#dc3545'
+        });
+      }
+    });
   }
 
   async toggleEstado(paciente: Paciente) {
@@ -284,8 +259,7 @@ console.log(this.obrasSociales())
 
     if (result.isConfirmed) {
       this.pacientesService.toggleEstadoPaciente(paciente.id).subscribe({
-        next: (pacienteActualizado) => {
-          console.log('Paciente actualizado:', pacienteActualizado); // Para debug
+        next: () => {
           Swal.fire({
             title: `¡Paciente ${accion === 'activar' ? 'Activado' : 'Desactivado'}!`,
             text: `El paciente ha sido ${accion === 'activar' ? 'activado' : 'desactivado'} exitosamente`,
@@ -308,7 +282,7 @@ console.log(this.obrasSociales())
   }
 
   getNombreObraSocial(idObraSocial: number | null): string {
-    if (!idObraSocial) return '';
+    if (!idObraSocial) return 'Sin obra social';
     const obraSocial = this.obrasSociales().find(os => os.id === idObraSocial);
     return obraSocial ? obraSocial.descripcion : 'Desconocida';
   }
@@ -317,12 +291,18 @@ console.log(this.obrasSociales())
     return activo ? 'badge bg-success' : 'badge bg-secondary';
   }
 
-  // Método para debugger el estado de los pacientes
+  // Método helper para verificar si un paciente tiene obra social real
+  tieneObraSocialReal(paciente: Paciente): boolean {
+    const sinObraSocial = this.obraSocialSinCobertura();
+    return paciente.idObraSocial != null && paciente.idObraSocial !== sinObraSocial?.id;
+  }
+
   debugPacientes() {
     console.log('=== DEBUG PACIENTES ===');
     console.log('Total pacientes:', this.pacientes().length);
     console.log('Pacientes:', this.pacientes());
     console.log('Estadísticas:', this.estadisticas());
+    console.log('Obra social "Sin cobertura":', this.obraSocialSinCobertura());
     console.log('=====================');
   }
 }

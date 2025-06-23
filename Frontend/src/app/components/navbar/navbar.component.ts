@@ -1,5 +1,5 @@
 // src/app/components/navbar/navbar.component.ts
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { ChoferService } from '../../services/chofer.service';
@@ -24,6 +24,7 @@ export class NavbarComponent implements OnInit {
   currentChofer = signal<ChoferData | null>(null);
   isDropdownOpen = signal(false);
   isLoading = signal(true);
+  isMobile = signal<boolean>(false);
 
   // Computed signals
   displayName = computed(() => {
@@ -79,6 +80,14 @@ export class NavbarComponent implements OnInit {
         this.currentChofer.set(null);
       }
     });
+
+    // Detectar tamaño de pantalla inicial
+    this.isMobile.set(window.innerWidth < 992);
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.isMobile.set(window.innerWidth < 992);
   }
 
   private loadChoferData() {
@@ -103,17 +112,11 @@ export class NavbarComponent implements OnInit {
     this.isDropdownOpen.set(false);
   }
 
-  goToProfile() {
-    this.closeDropdown();
-    // TODO: Navegar a página de perfil
-    console.log('Ir a perfil');
+  toggleSidebar() {
+    // Emitir evento para que el sidebar lo escuche
+    window.dispatchEvent(new CustomEvent('toggleSidebar'));
   }
 
-  goToSettings() {
-    this.closeDropdown();
-    // TODO: Navegar a configuración
-    console.log('Ir a configuración');
-  }
 
   logout() {
     this.closeDropdown();

@@ -31,4 +31,6 @@ public class AgendaEntity {
 
     @OneToMany(mappedBy = "agenda", fetch = FetchType.LAZY)
     private List<TrasladoEntity> traslados;
+
+
 }

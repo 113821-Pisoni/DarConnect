@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { first } from 'rxjs/operators';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-login',
@@ -65,8 +66,13 @@ export class LoginComponent implements OnInit {
           }
         },
         error: (error) => {
-          this.error = error.message || 'Credenciales inválidas';
           this.loading = false;
+          Swal.fire({
+            icon: 'error',
+            title: 'Error de inicio de sesión',
+            text: 'Usuario o contraseña incorrectos',
+            confirmButtonColor: '#d33'
+          });
         }
       });
   }

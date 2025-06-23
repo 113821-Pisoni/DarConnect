@@ -2,7 +2,7 @@
 .sidebar {
   height: 100vh;
   width: 250px;
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
   transition: width 0.3s ease-in-out;
   z-index: 1050;
   display: flex;
@@ -46,13 +46,13 @@
 }
 
 .nav-link:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
+  background: linear-gradient(135deg, #3a5169 0%, #4a6581 100%);
   color: white;
 }
 
 .nav-link:active,
 .nav-link.active {
-  background: rgba(255, 255, 255, 0.2) !important;
+  background: linear-gradient(135deg, #4a6581 0%, #5a7a99 100%);
   border-left: 4px solid #ffc107;
   color: white;
 }
@@ -118,9 +118,57 @@
     transform: translateX(0);
   }
   
-  /* En móvil, cuando se abre, mantiene ancho completo */
   .sidebar.collapsed {
     width: 250px;
     transform: translateX(-100%);
+  }
+
+  /* NUEVAS REGLAS PARA HACER MÁS COMPACTO */
+  
+  /* Reducir padding del header */
+  .sidebar-header {
+    min-height: 50px;
+    padding: 0.75rem !important;
+  }
+  
+  .sidebar-header h5 {
+    font-size: 1.1rem;
+  }
+  
+  /* Reducir espaciado de secciones */
+  .nav-section {
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Títulos de sección más pequeños */
+  .nav-section-title {
+    margin-bottom: 0.5rem !important;
+    padding: 0 0.75rem !important;
+  }
+  
+  .nav-section-title small {
+    font-size: 0.7rem;
+  }
+  
+  /* Links más compactos */
+  .nav-link {
+    min-height: 36px;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.9rem;
+  }
+  
+  .nav-item {
+    margin-bottom: 0.25rem !important;
+  }
+  
+  /* Iconos más pequeños */
+  .nav-link i {
+    font-size: 1rem;
+    width: 18px;
+  }
+  
+  /* Reducir padding general del nav */
+  .nav {
+    padding: 0 0.5rem !important;
   }
 }

@@ -1,0 +1,123 @@
+<div class="dashboard-container">
+  
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">Mi Dashboard</h1>
+        @if (chofer()) {
+          <p class="page-subtitle">Panel de control de {{ chofer()!.nombre }} {{ chofer()!.apellido }}</p>
+        }
+      </div>
+      <div class="header-actions">
+        <select 
+          class="form-select period-selector"
+          [value]="periodo()"
+          (change)="onPeriodoChange($event)"
+          [disabled]="loading()">
+          <option value="hoy">Hoy</option>
+          <option value="semana">Esta semana</option>
+          <option value="mes">Este mes</option>
+          <option value="año">Este año</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="error-alert">
+      <span>{{ error() }}</span>
+      <button class="error-retry-btn" (click)="cargarDatos()">
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando estadísticas...</p>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!loading() && !error() && estadisticas()) {
+    
+    <!-- Estadísticas Compactas -->
+    <div class="stats-container">
+      @for (metrica of metricas(); track metrica.titulo) {
+        <div class="stat-item">
+          <div class="stat-indicator" [ngClass]="'indicator-' + metrica.color"></div>
+          <div class="stat-content">
+            <div class="stat-number">{{ metrica.valor }}{{ metrica.sufijo || '' }}</div>
+            <div class="stat-label">{{ metrica.titulo }}</div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Gráficos Section -->
+    <div class="charts-section">
+      <!-- Gráfico de Tendencia -->
+      <div class="chart-card main-chart">
+        <div class="chart-header">
+          <div class="chart-title">
+            <span class="d-none d-md-inline">{{ tituloGrafico() }}</span>
+            <span class="d-md-none">Tendencia</span>
+          </div>
+        </div>
+        <div class="chart-body">
+          <canvas #tendenciaChart></canvas>
+        </div>
+      </div>
+
+      <!-- Gráfico de Tipos -->
+      <div class="chart-card secondary-chart">
+        <div class="chart-header">
+          <div class="chart-title">
+            <span class="d-none d-md-inline">Tipos de Traslado</span>
+            <span class="d-md-none">Tipos</span>
+          </div>
+        </div>
+        <div class="chart-body">
+          <canvas #tiposChart></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Summary -->
+    <div class="summary-section">
+      <div class="summary-card">
+        <div class="summary-header">
+          <div class="summary-title">
+            <span class="d-none d-md-inline">Resumen del Período</span>
+            <span class="d-md-none">Resumen</span>
+          </div>
+        </div>
+        <div class="summary-body">
+          <div class="summary-grid">
+            <div class="summary-item">
+              <div class="summary-value text-success">{{ estadisticas()!.porcentajeExito.toFixed(1) }}%</div>
+              <div class="summary-label">Tasa de Éxito</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-value text-danger">{{ estadisticas()!.porcentajeCancelacion.toFixed(1) }}%</div>
+              <div class="summary-label">Tasa de Cancelación</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-value text-info">{{ estadisticas()!.conSillaRuedas }}</div>
+              <div class="summary-label">Con Silla de Ruedas</div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-value text-primary">{{ estadisticas()!.sinSillaRuedas }}</div>
+              <div class="summary-label">Sin Silla de Ruedas</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  }
+</div>

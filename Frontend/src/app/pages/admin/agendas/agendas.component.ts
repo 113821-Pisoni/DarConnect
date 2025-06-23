@@ -1,27 +1,32 @@
-// src/app/pages/admin/agendas/agendas.component.ts
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AgendaService } from '../../../services/agenda.service';
 import { ChoferService } from '../../../services/chofer.service';
-import { Agenda, AgendaCreateDTO, EstadisticasAgendas } from '../../../interfaces/agenda.interface';
+import { Agenda, AgendaCreateDTO } from '../../../interfaces/agenda.interface';
 import { ChoferData } from '../../../interfaces/chofer.interface';
+import { AgendasModalComponent } from './agenda-modal/agenda-modal.component';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-agendas',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AgendasModalComponent],
   templateUrl: './agendas.component.html',
   styleUrls: ['./agendas.component.css']
 })
 export class AgendasComponent implements OnInit {
   
+  @ViewChild(AgendasModalComponent) modal!: AgendasModalComponent;
+
   // Signals
   agendas = signal<Agenda[]>([]);
   choferes = signal<ChoferData[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
   filtroActivo = signal('TODAS');
+  
+  // Modal signals
+  modalOpen = signal(false);
 
   // Computed
   agendasFiltradas = computed(() => {
@@ -83,7 +88,6 @@ export class AgendasComponent implements OnInit {
     return new Promise((resolve, reject) => {
       this.agendaService.getAgendas().subscribe({
         next: (agendas) => {
-          console.log('Agendas recibidas:', agendas);
           this.agendas.set(agendas);
           resolve();
         },
@@ -100,7 +104,6 @@ export class AgendasComponent implements OnInit {
     return new Promise((resolve, reject) => {
       this.choferService.getAllChoferes().subscribe({
         next: (choferes) => {
-          console.log('Choferes recibidos:', choferes);
           this.choferes.set(choferes);
           resolve();
         },
@@ -116,7 +119,8 @@ export class AgendasComponent implements OnInit {
     this.filtroActivo.set(filtro);
   }
 
-  async crearAgenda() {
+  // Modal methods
+  abrirModalCrear() {
     const choferesDisponibles = this.choferesDisponibles();
     
     if (choferesDisponibles.length === 0) {
@@ -129,72 +133,49 @@ export class AgendasComponent implements OnInit {
       return;
     }
 
-    const opcionesChoferes = choferesDisponibles
-      .map(chofer => `<option value="${chofer.id}">${chofer.nombre} ${chofer.apellido} - DNI: ${chofer.dni}</option>`)
-      .join('');
+    this.modalOpen.set(true);
+  }
 
-    const { value: formValues } = await Swal.fire({
-      title: 'Nueva Agenda',
-      html: `
-        <div class="text-start mt-3">
-          <div class="form-floating mb-3">
-            <select class="form-select" id="chofer">
-              <option value="">Seleccionar chofer...</option>
-              ${opcionesChoferes}
-            </select>
-            <label for="chofer">
-              <i class="bi bi-person-badge me-2"></i>Chofer
-            </label>
-          </div>
-        </div>
-      `,
-      width: '500px',
-      showCancelButton: true,
-      confirmButtonText: '<i class="bi bi-check me-1"></i>Crear',
-      cancelButtonText: '<i class="bi bi-x me-1"></i>Cancelar',
-      confirmButtonColor: '#3b82f6',
-      cancelButtonColor: '#6b7280',
-      preConfirm: () => {
-        const choferId = (document.getElementById('chofer') as HTMLSelectElement).value;
+  cerrarModal() {
+    this.modalOpen.set(false);
+  }
+
+  onSaveAgenda(data: AgendaCreateDTO) {
+    this.crearAgenda(data);
+  }
+
+  private crearAgenda(agendaData: AgendaCreateDTO) {
+    this.agendaService.createAgenda(agendaData).subscribe({
+      next: (agendaCreada) => {
+        this.modal.finishLoading();
+        this.cerrarModal();
         
-        if (!choferId) {
-          Swal.showValidationMessage('Debe seleccionar un chofer');
-          return false;
+        Swal.fire({
+          title: '¡Agenda Creada!',
+          text: `La agenda para ${agendaCreada.nombreChofer} ${agendaCreada.apellidoChofer} ha sido creada exitosamente`,
+          icon: 'success',
+          confirmButtonColor: '#198754'
+        });
+        
+        this.cargarAgendas();
+      },
+      error: (err) => {
+        console.error('Error al crear agenda:', err);
+        this.modal.finishLoading();
+        
+        let mensaje = 'No se pudo crear la agenda. Intente nuevamente.';
+        if (err.status === 400 && err.error?.message?.includes('chofer')) {
+          mensaje = 'El chofer seleccionado no está disponible o ya tiene una agenda activa.';
         }
         
-        return { idChofer: parseInt(choferId) };
+        Swal.fire({
+          title: 'Error',
+          text: mensaje,
+          icon: 'error',
+          confirmButtonColor: '#dc3545'
+        });
       }
     });
-
-    if (formValues) {
-      this.agendaService.createAgenda(formValues).subscribe({
-        next: (agendaCreada) => {
-          console.log('Agenda creada:', agendaCreada);
-          Swal.fire({
-            title: '¡Agenda Creada!',
-            text: `La agenda para ${agendaCreada.nombreChofer} ${agendaCreada.apellidoChofer} ha sido creada exitosamente`,
-            icon: 'success',
-            confirmButtonColor: '#198754'
-          });
-          this.cargarAgendas();
-        },
-        error: (err) => {
-          console.error('Error al crear agenda:', err);
-          let mensaje = 'No se pudo crear la agenda. Intente nuevamente.';
-          
-          if (err.status === 400 && err.error?.message?.includes('chofer')) {
-            mensaje = 'El chofer seleccionado no está disponible o ya tiene una agenda activa.';
-          }
-          
-          Swal.fire({
-            title: 'Error',
-            text: mensaje,
-            icon: 'error',
-            confirmButtonColor: '#dc3545'
-          });
-        }
-      });
-    }
   }
 
   async desactivarAgenda(agenda: Agenda) {
@@ -246,7 +227,6 @@ export class AgendasComponent implements OnInit {
     return `${agenda.nombreChofer} ${agenda.apellidoChofer}`;
   }
 
-  // Método para debugger
   debugAgendas() {
     console.log('=== DEBUG AGENDAS ===');
     console.log('Total agendas:', this.agendas().length);

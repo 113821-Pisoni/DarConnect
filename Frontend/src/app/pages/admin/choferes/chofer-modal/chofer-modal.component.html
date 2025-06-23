@@ -1,0 +1,236 @@
+@if (getIsVisible()) {
+  <div class="modal-backdrop" (click)="handleBackdropClick($event)">
+    <div class="modal-container">
+      <div class="modal-content">
+        
+        <!-- Header -->
+        <div class="modal-header">
+          <div class="modal-title">
+            <i class="bi bi-person-badge"></i>
+            {{ getModalTitle() }}
+          </div>
+          <button 
+            type="button" 
+            class="modal-close" 
+            (click)="close()"
+            [disabled]="loading()">
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+        
+        <!-- Body -->
+        <div class="modal-body">
+          
+          <!-- Error Alert -->
+          @if (error()) {
+            <div class="error-alert">
+              <i class="bi bi-exclamation-triangle"></i>
+              <div>
+                <div class="alert-title">Error</div>
+                <div class="alert-message">{{ error() }}</div>
+              </div>
+            </div>
+          }
+          
+          <!-- Form -->
+          <form [formGroup]="choferForm" (ngSubmit)="onSubmit()">
+            
+            <!-- Usuario Selection (Solo en modo crear) -->
+            @if (mode() === 'create') {
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-person"></i>
+                  Usuario *
+                </label>
+                <select 
+                  class="form-select" 
+                  formControlName="idUsuario"
+                  [class.is-invalid]="isFieldInvalid('idUsuario')"
+                  [disabled]="loading()">
+                  <option value="">Seleccionar usuario...</option>
+                  @for (usuario of usuariosDisponibles(); track usuario.id) {
+                    <option [value]="usuario.id">{{ usuario.usuario }}</option>
+                  }
+                </select>
+                @if (isFieldInvalid('idUsuario')) {
+                  <div class="error-message">
+                    {{ getFieldError('idUsuario') }}
+                  </div>
+                }
+              </div>
+            }
+            
+            <!-- Nombre y Apellido -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-person-badge"></i>
+                  Nombre *
+                </label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  formControlName="nombre"
+                  placeholder="Nombre"
+                  [class.is-invalid]="isFieldInvalid('nombre')"
+                  [disabled]="loading()">
+                @if (isFieldInvalid('nombre')) {
+                  <div class="error-message">
+                    {{ getFieldError('nombre') }}
+                  </div>
+                }
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-person-badge"></i>
+                  Apellido *
+                </label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  formControlName="apellido"
+                  placeholder="Apellido"
+                  [class.is-invalid]="isFieldInvalid('apellido')"
+                  [disabled]="loading()">
+                @if (isFieldInvalid('apellido')) {
+                  <div class="error-message">
+                    {{ getFieldError('apellido') }}
+                  </div>
+                }
+              </div>
+            </div>
+            
+            <!-- DNI y Teléfono -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-credit-card"></i>
+                  DNI *
+                </label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  formControlName="dni"
+                  placeholder="DNI"
+                  [class.is-invalid]="isFieldInvalid('dni')"
+                  [disabled]="loading()">
+                @if (isFieldInvalid('dni')) {
+                  <div class="error-message">
+                    {{ getFieldError('dni') }}
+                  </div>
+                }
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-telephone"></i>
+                  Teléfono
+                </label>
+                <input 
+                  type="tel" 
+                  class="form-control" 
+                  formControlName="telefono"
+                  placeholder="Teléfono"
+                  [class.is-invalid]="isFieldInvalid('telefono')"
+                  [disabled]="loading()">
+                @if (isFieldInvalid('telefono')) {
+                  <div class="error-message">
+                    {{ getFieldError('telefono') }}
+                  </div>
+                }
+              </div>
+            </div>
+            
+            <!-- Dirección -->
+            <div class="form-group">
+              <label class="form-label">
+                <i class="bi bi-geo-alt"></i>
+                Dirección
+              </label>
+              <input 
+                type="text" 
+                class="form-control" 
+                formControlName="direccion"
+                placeholder="Dirección"
+                [class.is-invalid]="isFieldInvalid('direccion')"
+                [disabled]="loading()">
+              @if (isFieldInvalid('direccion')) {
+                <div class="error-message">
+                  {{ getFieldError('direccion') }}
+                </div>
+              }
+            </div>
+            
+            <!-- Fechas -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-credit-card-2-front"></i>
+                  Venc. Licencia *
+                </label>
+                <input 
+                  type="date" 
+                  class="form-control" 
+                  formControlName="fechaVencimientoLicencia"
+                  [class.is-invalid]="isFieldInvalid('fechaVencimientoLicencia')"
+                  [disabled]="loading()">
+                @if (isFieldInvalid('fechaVencimientoLicencia')) {
+                  <div class="error-message">
+                    {{ getFieldError('fechaVencimientoLicencia') }}
+                  </div>
+                }
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-calendar"></i>
+                  F. Contratación
+                </label>
+                <input 
+                  type="date" 
+                  class="form-control" 
+                  formControlName="fechaContratacion"
+                  [class.is-invalid]="isFieldInvalid('fechaContratacion')"
+                  [disabled]="loading()">
+                @if (isFieldInvalid('fechaContratacion')) {
+                  <div class="error-message">
+                    {{ getFieldError('fechaContratacion') }}
+                  </div>
+                }
+              </div>
+            </div>
+            
+          </form>
+          
+        </div>
+        
+        <!-- Footer -->
+        <div class="modal-footer">
+          <button 
+            type="button" 
+            class="btn-secondary"
+            (click)="close()"
+            [disabled]="loading()">
+            <i class="bi bi-x"></i>
+            Cancelar
+          </button>
+          
+          <button 
+            type="button" 
+            class="btn-primary"
+            (click)="onSubmit()"
+            [disabled]="loading() || choferForm.invalid">
+            @if (loading()) {
+              <div class="spinner-sm"></div>
+            } @else {
+              <i class="bi bi-check"></i>
+            }
+            {{ getSubmitButtonText() }}
+          </button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+}

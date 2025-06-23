@@ -1,28 +1,27 @@
+<!-- HTML -->
 <div class="container-fluid p-4">
-  <div class="agenda-final">
-    <div class="header-final">
-      <h1 class="titulo-final">
-        <i class="bi bi-calendar-week icono-final"></i>
+  <div class="agenda-container">
+    <div class="agenda-header">
+      <h3 class="agenda-title">
+        <i class="bi bi-calendar-week"></i>
         Agenda Semanal de Traslados
-      </h1>
-      <p class="subtitulo-final">Semana del 26 de Mayo al 01 de Junio, 2025</p>
+        <hr>
+      </h3>
     </div>
 
     <!-- Loading -->
     @if (loading()) {
-      <div class="text-center py-5">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Cargando...</span>
-        </div>
-        <p class="mt-2">Cargando agenda...</p>
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Cargando agenda...</p>
       </div>
     }
 
     <!-- Error -->
     @if (error()) {
-      <div class="alert alert-danger mx-4" role="alert">
-        <i class="bi bi-exclamation-triangle me-2"></i>
-        {{ error() }}
+      <div class="error-alert">
+        <i class="bi bi-exclamation-triangle"></i>
+        <span>{{ error() }}</span>
       </div>
     }
 
@@ -30,34 +29,34 @@
       
       <!-- Vista DESKTOP: Grid -->
       <div class="d-none d-md-block">
-        <div class="contenido-final">
+        <div class="agenda-content">
           <div class="table-responsive">
-            <table class="table table-borderless">
+            <table class="table table-borderless agenda-table">
               <thead>
                 <tr>
-                  <th style="width: 110px;"></th>
+                  <th class="time-header"></th>
                   @for (dia of diasSemana; track dia) {
-                    <th class="dia-final">{{ dia }}</th>
+                    <th class="day-header">{{ dia }}</th>
                   }
                 </tr>
               </thead>
               <tbody>
                 @for (horaData of organizarTrasladosPorGrid() | keyvalue; track horaData.key) {
                   <tr>
-                    <td class="hora-final">{{ horaData.key }}</td>
+                    <td class="time-cell">{{ horaData.key }}</td>
                     @for (traslado of horaData.value; track $index) {
                       <td>
                         @if (traslado) {
-                          <div class="traslado-final" (click)="abrirDetalle(traslado)">
-                            <div class="paciente-final">{{ traslado.nombreCompletoPaciente }}</div>
+                          <div class="traslado-card" (click)="abrirDetalle(traslado)">
+                            <div class="patient-name">{{ traslado.nombreCompletoPaciente }}</div>
                             @if (traslado.sillaRueda) {
-                              <div class="silla-final">
+                              <div class="wheelchair-badge">
                                 <i class="bi bi-person-wheelchair"></i>
                               </div>
                             }
                           </div>
                         } @else {
-                          <div class="vacio-final">—</div>
+                          <div class="empty-slot">—</div>
                         }
                       </td>
                     }
@@ -71,30 +70,34 @@
 
       <!-- Vista MOBILE: Lista por día -->
       <div class="d-md-none">
-        <div class="contenido-final">
+        <div class="agenda-content">
           @for (dia of diasSemana; track $index; let i = $index) {
-            <div class="card mb-3">
-              <div class="card-header text-white" style="background-color: #3182ce;">
-                <h6 class="mb-0">{{ dia }}</h6>
+            <div class="card day-card mb-3">
+              <div class="card-header day-card-header">
+                <h6 class="mb-0 day-card-title">{{ dia }}</h6>
               </div>
               <div class="card-body p-2">
                 @for (horaData of organizarTrasladosPorGrid() | keyvalue; track horaData.key) {
                   @if (horaData.value[i]) {
-                    <div class="border rounded p-3 mb-2 cursor-pointer" (click)="abrirDetalle(horaData.value[i])">
+                    <div class="mobile-traslado" (click)="abrirDetalle(horaData.value[i])">
                       <div class="d-flex justify-content-between align-items-center">
                         <div>
-                          <small class="text-muted">{{ horaData.key }}</small>
-                          <div class="fw-semibold">{{ horaData.value[i].nombreCompletoPaciente }}</div>
+                          <div class="mobile-time">{{ horaData.key }}</div>
+                          <div class="mobile-patient">{{ horaData.value[i].nombreCompletoPaciente }}</div>
                         </div>
                         @if (horaData.value[i].sillaRueda) {
-                          <i class="bi bi-person-wheelchair text-success fs-4"></i>
+                          <div class="mobile-wheelchair">
+                            <i class="bi bi-person-wheelchair"></i>
+                          </div>
                         }
                       </div>
                     </div>
                   }
                 }
                 @if (getTrasladosParaDia(i).length === 0) {
-                  <p class="text-muted mb-0 text-center py-3"><small>Sin traslados programados</small></p>
+                  <div class="empty-day">
+                    <small>Sin traslados programados</small>
+                  </div>
                 }
               </div>
             </div>
@@ -108,62 +111,71 @@
 
 <!-- Modal de Detalle -->
 @if (mostrarModal()) {
-  <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-backdrop">
+    <div class="modal-container">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">
-            <i class="bi bi-info-circle me-2"></i>
+          <div class="modal-title">
+            <i class="bi bi-info-circle"></i>
             Detalle del Traslado
-          </h5>
-          <button type="button" class="btn-close" (click)="cerrarModal()"></button>
+          </div>
+          <button type="button" class="modal-close" (click)="cerrarModal()">
+            <i class="bi bi-x"></i>
+          </button>
         </div>
         
         @if (trasladoSeleccionado()) {
           <div class="modal-body">
-            <div class="mb-3">
-              <h6 class="text-primary">
-                <i class="bi bi-person me-2"></i>Paciente
-              </h6>
-              <p class="mb-1"><strong>{{ trasladoSeleccionado()?.nombreCompletoPaciente }}</strong></p>
+            <div class="detail-section">
+              <div class="detail-label">
+                <i class="bi bi-person"></i>
+                Paciente
+              </div>
+              <div class="detail-value">{{ trasladoSeleccionado()?.nombreCompletoPaciente }}</div>
               @if (trasladoSeleccionado()?.telefonoPaciente) {
-                <p class="mb-0">
-                  <i class="bi bi-telephone me-1"></i>
+                <div class="detail-phone">
+                  <i class="bi bi-telephone"></i>
                   {{ trasladoSeleccionado()?.telefonoPaciente }}
-                </p>
+                </div>
               }
             </div>
 
-            <div class="mb-3">
-              <h6 class="text-primary">
-                <i class="bi bi-clock me-2"></i>Horario
-              </h6>
-              <p class="mb-1">{{ formatearHora(trasladoSeleccionado()?.horaProgramada) }}</p>
+            <div class="detail-section">
+              <div class="detail-label">
+                <i class="bi bi-clock"></i>
+                Horario
+              </div>
+              <div class="detail-value">{{ formatearHora(trasladoSeleccionado()?.horaProgramada) }}</div>
               @if (trasladoSeleccionado()?.sillaRueda) {
-                <span class="badge bg-success">
-                  <i class="bi bi-person-wheelchair me-1"></i>Silla de ruedas
-                </span>
+                <div class="wheelchair-badge-modal">
+                  <i class="bi bi-person-wheelchair"></i>
+                  Silla de ruedas
+                </div>
               }
             </div>
 
-            <div class="mb-3">
-              <h6 class="text-primary">
-                <i class="bi bi-geo-alt me-2"></i>Ruta
-              </h6>
-              <p class="mb-1">
-                <strong>Origen:</strong> {{ trasladoSeleccionado()?.direccionOrigen }}
-              </p>
-              <p class="mb-0">
-                <strong>Destino:</strong> {{ trasladoSeleccionado()?.direccionDestino }}
-              </p>
+            <div class="detail-section">
+              <div class="detail-label">
+                <i class="bi bi-geo-alt"></i>
+                Ruta
+              </div>
+              <div class="route-info">
+                <div class="route-item">
+                  <strong>Origen:</strong> {{ trasladoSeleccionado()?.direccionOrigen }}
+                </div>
+                <div class="route-item">
+                  <strong>Destino:</strong> {{ trasladoSeleccionado()?.direccionDestino }}
+                </div>
+              </div>
             </div>
 
             @if (trasladoSeleccionado()?.observaciones) {
-              <div class="mb-3">
-                <h6 class="text-primary">
-                  <i class="bi bi-chat-text me-2"></i>Observaciones
-                </h6>
-                <p class="mb-0">{{ trasladoSeleccionado()?.observaciones }}</p>
+              <div class="detail-section">
+                <div class="detail-label">
+                  <i class="bi bi-chat-text"></i>
+                  Observaciones
+                </div>
+                <div class="detail-value">{{ trasladoSeleccionado()?.observaciones }}</div>
               </div>
             }
           </div>
@@ -171,12 +183,12 @@
         
         <div class="modal-footer">
           @if (trasladoSeleccionado()?.telefonoPaciente) {
-            <button type="button" class="btn btn-success" 
+            <button type="button" class="btn btn-success btn-sm" 
                     (click)="llamarPaciente(trasladoSeleccionado()?.telefonoPaciente)">
               <i class="bi bi-telephone me-1"></i>Llamar
             </button>
           }
-          <button type="button" class="btn btn-secondary" (click)="cerrarModal()">
+          <button type="button" class="btn btn-secondary btn-sm" (click)="cerrarModal()">
             Cerrar
           </button>
         </div>

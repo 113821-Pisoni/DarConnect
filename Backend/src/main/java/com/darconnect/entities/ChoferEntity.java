@@ -46,4 +46,7 @@ public class ChoferEntity {
 
     @Column(name = "activo", columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean activo = true;
+
+    @Column(name = "telegram_chat_id")
+    private String telegramChatId;
 }

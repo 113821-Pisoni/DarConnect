@@ -18,3 +18,52 @@
 .dropdown-menu.show {
   display: block;
 }
+
+/* AGREGAR ESTAS REGLAS AL FINAL DE TU CSS EXISTENTE */
+
+/* Responsive para navbar */
+@media (max-width: 991px) {
+ .navbar-brand {
+   font-size: 1.1rem;
+ }
+ 
+ .dropdown-menu {
+   position: absolute !important;
+   transform: none !important;
+   left: auto !important;
+   right: 0 !important;
+   min-width: 200px;
+ }
+}
+
+@media (max-width: 768px) {
+ .navbar-brand {
+   font-size: 1rem;
+ }
+ 
+ .btn {
+   padding: 0.5rem 0.75rem;
+   font-size: 0.875rem;
+ }
+ 
+ .dropdown-menu {
+   min-width: 180px;
+   font-size: 0.875rem;
+ }
+}
+
+@media (max-width: 480px) {
+ .navbar-brand {
+   font-size: 0.9rem;
+ }
+ 
+ .btn {
+   padding: 0.375rem 0.5rem;
+   font-size: 0.8rem;
+ }
+ 
+ .dropdown-menu {
+   min-width: 160px;
+   font-size: 0.8rem;
+ }
+}
