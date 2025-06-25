@@ -52,11 +52,9 @@ public class GoogleMapsServiceImpl {
     }
 
     private String construirUrl(String origen, String destino) {
-        // ✅ MEJORAR: Agregar ciudad por defecto si no la tiene
         String origenCompleto = completarDireccion(origen);
         String destinoCompleto = completarDireccion(destino);
 
-        // ✅ DEBUG MEJORADO
         logger.info("Origen original: '{}' → Origen completo: '{}'", origen, origenCompleto);
         logger.info("Destino original: '{}' → Destino completo: '{}'", destino, destinoCompleto);
 
@@ -104,7 +102,6 @@ public class GoogleMapsServiceImpl {
                 return new GoogleMapsResponse("Error en la respuesta de Google Maps: " + status);
             }
 
-            // ✅ CORREGIDO: rows es una lista, no un mapa
             List<Map<String, Object>> rows = (List<Map<String, Object>>) response.get("rows");
             if (rows == null || rows.isEmpty()) {
                 return new GoogleMapsResponse("No se encontraron rutas");
@@ -139,7 +136,6 @@ public class GoogleMapsServiceImpl {
             String distanciaMetros = distance.get("value").toString();
             String distanciaTexto = (String) distance.get("text");
 
-            // ✅ MEJORADO: Manejo de tráfico
             String traficoTexto;
             if (durationInTraffic != null) {
                 traficoTexto = (String) durationInTraffic.get("text");

@@ -49,12 +49,47 @@
           }
         </div>
         
-        <div class="form-check">
-          <div class="remember-me">
-            <input type="checkbox" id="recordarme" formControlName="remember">
-            <label for="recordarme">Recordarme</label>
+        <div class="form-check-container">
+          <div class="form-check">
+            <div class="remember-me">
+              <input type="checkbox" id="recordarme" formControlName="remember">
+              <label for="recordarme">Recordarme</label>
+            </div>
           </div>
-          
+        </div>
+        
+        <div class="form-check-container">
+          <div class="form-check">
+            <div class="remember-me">
+              <input type="checkbox" id="acceptTerms" formControlName="acceptTerms">
+              <span class="checkbox-text">
+                Aceptar 
+                <span class="link-text" (click)="showTermsAndConditions()">Términos y Condiciones</span>
+              </span>
+            </div>
+          </div>
+          @if (submitted && f['acceptTerms'].errors) {
+            <div class="error-message">
+              <div>Debe aceptar los términos y condiciones</div>
+            </div>
+          }
+        </div>
+        
+        <div class="form-check-container">
+          <div class="form-check">
+            <div class="remember-me">
+              <input type="checkbox" id="acceptPrivacy" formControlName="acceptPrivacy">
+              <span class="checkbox-text">
+                Aceptar 
+                <span class="link-text" (click)="showPrivacyPolicy()">Políticas de Privacidad</span>
+              </span>
+            </div>
+          </div>
+          @if (submitted && f['acceptPrivacy'].errors) {
+            <div class="error-message">
+              <div>Debe aceptar las políticas de privacidad</div>
+            </div>
+          }
         </div>
         
         <button type="submit" class="login-button" [disabled]="loading">
@@ -64,7 +99,6 @@
           Iniciar sesión
         </button>
         
-
       </form>
     </div>
   </div>

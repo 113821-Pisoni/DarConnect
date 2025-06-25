@@ -16,14 +16,7 @@ public class CorsConfig {
 
         // Permitir credenciales
         config.setAllowCredentials(true);
-
-        // Opción 1: Especificar explícitamente los orígenes permitidos
         config.addAllowedOrigin("http://localhost:4200");
-        // Si tienes más orígenes (como un entorno de producción), añádelos aquí
-        // config.addAllowedOrigin("https://tu-dominio.com");
-
-        // Opción 2 (alternativa): Usar patrones de origen en lugar de orígenes específicos
-        // config.addAllowedOriginPattern("*");
 
         // Permitir todos los encabezados y métodos
         config.addAllowedHeader("*");

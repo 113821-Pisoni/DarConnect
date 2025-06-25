@@ -225,18 +225,16 @@ public class TrasladoServiceImpl implements TrasladoService {
         TrasladoEntity traslado = trasladoRepository.findById(trasladoId)
                 .orElseThrow(() -> new EntityNotFoundException("Traslado no encontrado."));
 
-        UsuarioEntity usuario = usuarioRepository.findById(usuarioId) // TEMPORAL - cambiar por usuario real
+        UsuarioEntity usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
         LocalDate fechaHoy = LocalDate.now();
         LocalDateTime ahora = LocalDateTime.now();
-
-        // 🔍 BUSCAR el último registro del día
+        
         Optional<HistoricoTrasladoEntity> registroExistente =
                 historicoTrasladoRepository.findUltimoRegistroDelDia(trasladoId, fechaHoy);
 
         if (registroExistente.isPresent()) {
-            // ✅ ACTUALIZAR registro existente
             HistoricoTrasladoEntity historico = registroExistente.get();
 
             // Solo permitir transición de PENDIENTE → INICIADO
@@ -250,7 +248,6 @@ public class TrasladoServiceImpl implements TrasladoService {
                 throw new IllegalStateException("No se puede iniciar un traslado que ya está en estado: " + historico.getEstado());
             }
         } else {
-            // 📝 CREAR nuevo registro si no existe (primer estado del día)
             HistoricoTrasladoEntity nuevoHistorico = new HistoricoTrasladoEntity();
             nuevoHistorico.setTraslado(traslado);
             nuevoHistorico.setFechaTraslado(fechaHoy);
@@ -274,12 +271,10 @@ public class TrasladoServiceImpl implements TrasladoService {
         LocalDate fechaHoy = LocalDate.now();
         LocalDateTime ahora = LocalDateTime.now();
 
-        // 🔍 BUSCAR el último registro del día
         Optional<HistoricoTrasladoEntity> registroExistente =
                 historicoTrasladoRepository.findUltimoRegistroDelDia(trasladoId, fechaHoy);
 
         if (registroExistente.isPresent()) {
-            // ✅ ACTUALIZAR registro existente
             HistoricoTrasladoEntity historico = registroExistente.get();
 
             // Solo permitir transición de INICIADO → FINALIZADO
