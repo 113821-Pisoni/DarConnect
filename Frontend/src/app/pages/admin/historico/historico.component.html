@@ -1,0 +1,326 @@
+<div class="container-fluid p-4">
+  <!-- Header -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <div>
+          <h1 class="h4 mb-1">Histórico de Traslados</h1>
+          <p class="text-muted small mb-0">Consultar historial de cambios de estado de traslados</p>
+        </div>
+        <button 
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          (click)="exportarDatos()"
+          [disabled]="loading() || historicos().length === 0">
+          <i class="bi bi-download me-1"></i>
+          Exportar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="alert alert-danger d-flex align-items-center mb-4">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      <span class="flex-grow-1">{{ error() }}</span>
+      <button class="btn btn-sm btn-outline-danger" (click)="cargarDatosIniciales()">
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- Filtros -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <!-- Filtro por fechas -->
+        <div class="col-md-4">
+          <div class="d-flex gap-3 align-items-center">
+            <input 
+              type="date" 
+              class="form-control form-control-sm"
+              [value]="fechaInicio()"
+              (input)="fechaInicio.set($any($event.target).value)">
+            <input 
+              type="date" 
+              class="form-control form-control-sm"
+              [value]="fechaFin()"
+              (input)="fechaFin.set($any($event.target).value)">
+          </div>
+        </div>
+
+        <!-- Filtro por chofer -->
+        <div class="col-md-2">
+          <select 
+            class="form-select form-select-sm"
+            [value]="filtroChofer()"
+            (change)="filtroChofer.set($any($event.target).value === '' ? '' : +$any($event.target).value)">
+            <option value="">Todos los choferes</option>
+            @for (chofer of choferes(); track chofer.id) {
+              <option [value]="chofer.id">
+                {{ chofer.nombre }} {{ chofer.apellido }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <!-- Filtro por paciente -->
+        <div class="col-md-3">
+          <select 
+            class="form-select form-select-sm"
+            [value]="filtroPaciente()"
+            (change)="filtroPaciente.set($any($event.target).value === '' ? '' : +$any($event.target).value)">
+            <option value="">Todos los pacientes</option>
+            @for (paciente of pacientes(); track paciente.id) {
+              <option [value]="paciente.id">{{ paciente.nombre }} {{ paciente.apellido }} ({{ paciente.dni }})</option>
+            }
+          </select>
+        </div>
+
+        <!-- Filtro por estado -->
+        <div class="col-md-2">
+          <select 
+            class="form-select form-select-sm"
+            [value]="filtroEstado()"
+            (change)="filtroEstado.set($any($event.target).value)">
+            <option value="">Todos los estados</option>
+            @for (estado of estadosTraslado; track estado) {
+              <option [value]="estado">{{ getEstadoTexto(estado) }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Botones -->
+        <div class="col-md-1 d-flex gap-1">
+          <button 
+            type="button"
+            class="btn btn-primary btn-sm"
+            (click)="aplicarFiltros()"
+            [disabled]="loading()">
+            <i class="bi bi-search"></i>
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-outline-danger btn-sm"
+            (click)="limpiarFiltros()"
+            [disabled]="loading()">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estadísticas -->
+  @if (!loading() && !error()) {
+    <div class="stats-container">
+      <div class="stat-item">
+        <div class="stat-indicator total"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().total }}</div>
+          <div class="stat-label">Total</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-indicator active"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().finalizados }}</div>
+          <div class="stat-label">Finalizados</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-indicator inactive"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().cancelados }}</div>
+          <div class="stat-label">Cancelados</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-indicator wheelchair"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().iniciados }}</div>
+          <div class="stat-label">En Curso</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-indicator insurance"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().pendientes }}</div>
+          <div class="stat-label">Pendientes</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="card-header">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <div class="table-title-section">
+        <span class="fw-semibold">Registros del Histórico</span>
+        @if (totalElements() > 0) {
+            <span class="text-muted ms-2">({{ totalElements() }} registros)</span>
+        }
+        </div>
+        
+        <div class="table-controls d-flex align-items-center gap-2">
+        <label class="form-label-sm mb-0">Mostrar:</label>
+        <select 
+            class="form-select form-select-sm"
+            style="min-width: 70px;"
+            [value]="pageSize()"
+            (change)="cambiarTamanoPagina(+$any($event.target).value)">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+        </div>
+    </div>
+
+
+      <!-- Loading State -->
+      @if (loading()) {
+        <div class="card-body text-center py-5">
+          <div class="spinner-border text-primary mb-3" role="status"></div>
+          <p class="text-muted mb-0">Cargando histórico...</p>
+        </div>
+      } 
+      <!-- Empty State -->
+      @else if (historicos().length === 0) {
+        <div class="card-body text-center py-5">
+          <i class="bi bi-clock-history display-1 text-muted mb-3"></i>
+          <h5>No hay registros</h5>
+          <p class="text-muted">No se encontraron registros para los filtros seleccionados.</p>
+        </div>
+      } 
+      <!-- Data Table -->
+      @else {
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="small fw-semibold text-uppercase">Fecha/Hora Cambio</th>
+                <th class="small fw-semibold text-uppercase">Fecha Traslado</th>
+                <th class="small fw-semibold text-uppercase">Paciente</th>
+                <th class="small fw-semibold text-uppercase">Chofer</th>
+                <th class="small fw-semibold text-uppercase">Hora Programada</th>
+                <th class="small fw-semibold text-uppercase">Estado</th>
+                <th class="small fw-semibold text-uppercase">Motivo</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (historico of historicos(); track historico.id) {
+                <tr>
+                  <td>
+                    <div class="fw-semibold small">{{ formatearFechaHora(historico.fechaHoraCambio) }}</div>
+                  </td>
+                  <td>
+                    <span class="fw-semibold">{{ formatearFecha(historico.fechaTraslado) }}</span>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="bg-primary bg-opacity-10 text-primary rounded p-1 me-2">
+                        <i class="bi bi-person-heart"></i>
+                      </div>
+                      <div>
+                        <div class="fw-semibold small">{{ historico.traslado?.paciente?.nombre }} {{ historico.traslado?.paciente?.apellido }}</div>
+                        <div class="text-muted small">DNI: {{ historico.traslado?.paciente?.dni }}</div>
+                        @if (historico.traslado?.paciente?.sillaRueda) {
+                          <div class="text-purple small">
+                            <i class="bi bi-person-wheelchair me-1"></i>
+                            Silla de ruedas
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="bg-warning bg-opacity-10 text-warning rounded p-1 me-2">
+                        <i class="bi bi-person-badge"></i>
+                      </div>
+                      <div>
+                        <div class="fw-semibold small">{{ historico.traslado?.agenda?.chofer?.nombre }} {{ historico.traslado?.agenda?.chofer?.apellido }}</div>
+                        <div class="text-muted small">DNI: {{ historico.traslado?.agenda?.chofer?.dni }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <i class="bi bi-clock text-muted me-1"></i>
+                      <span class="fw-semibold">{{ formatearHora(historico.traslado?.horaProgramada) }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge bg-{{ getEstadoColor(historico.estado) }}">
+                      {{ getEstadoTexto(historico.estado) }}
+                    </span>
+                  </td>
+                  <td>
+                    @if (historico.motivo) {
+                      <span class="small">{{ historico.motivo }}</span>
+                    } @else {
+                      <span class="text-muted small">--</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginación -->
+        @if (totalPages() > 1) {
+          <div class="card-footer">
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted">
+                Página {{ currentPage() + 1 }} de {{ totalPages() }} 
+                ({{ totalElements() }} registros en total)
+              </small>
+              
+              <nav>
+                <ul class="pagination pagination-sm mb-0">
+                  <li class="page-item" [class.disabled]="currentPage() === 0">
+                    <button class="page-link" (click)="cambiarPagina(0)">
+                      <i class="bi bi-chevron-double-left"></i>
+                    </button>
+                  </li>
+                  
+                  <li class="page-item" [class.disabled]="currentPage() === 0">
+                    <button class="page-link" (click)="cambiarPagina(currentPage() - 1)">
+                      <i class="bi bi-chevron-left"></i>
+                    </button>
+                  </li>
+
+                  @for (pagina of getPaginas(); track pagina) {
+                    <li class="page-item" [class.active]="pagina === currentPage()">
+                      <button class="page-link" (click)="cambiarPagina(pagina)">
+                        {{ pagina + 1 }}
+                      </button>
+                    </li>
+                  }
+
+                  <li class="page-item" [class.disabled]="currentPage() === totalPages() - 1">
+                    <button class="page-link" (click)="cambiarPagina(currentPage() + 1)">
+                      <i class="bi bi-chevron-right"></i>
+                    </button>
+                  </li>
+                  
+                  <li class="page-item" [class.disabled]="currentPage() === totalPages() - 1">
+                    <button class="page-link" (click)="cambiarPagina(totalPages() - 1)">
+                      <i class="bi bi-chevron-double-right"></i>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,447 @@
+.container-fluid {
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background-color: #fafafa;
+  min-height: 100vh;
+}
+
+/*Google Maps*/
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e5e7eb;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-state p {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Error Alert */
+.error-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  color: #991b1b;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.error-retry-btn {
+  padding: 4px 12px;
+  border: 1px solid #dc2626;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #dc2626;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.error-retry-btn:hover {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+/* Section Containers */
+.section-container {
+  margin-bottom: 2rem;
+}
+
+.section-header {
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title i {
+  color: #3b82f6;
+  font-size: 20px;
+}
+
+/* Cards de Traslado */
+.traslado-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.15s ease;
+  background: #ffffff;
+}
+
+.traslado-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #d1d5db;
+}
+
+.traslado-actual {
+  border-left: 4px solid #3b82f6;
+}
+
+.traslado-upcoming {
+  border-left: 4px solid #f59e0b;
+}
+
+/* Patient Avatar */
+.patient-avatar {
+  width: 40px;
+  height: 40px;
+  background: #dbeafe;
+  color: #3b82f6;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.patient-avatar.upcoming {
+  background: #fef3c7;
+  color: #f59e0b;
+}
+
+/* Patient Info */
+.patient-name {
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.patient-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.patient-label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.wheelchair-icon {
+  color: #f59e0b;
+  font-size: 14px;
+}
+
+/* Upcoming Details */
+.upcoming-details {
+  font-weight: 600;
+  color: #3b82f6;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+/* Location Items */
+.location-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.location-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.location-icon.origin {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.location-icon.destination {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.location-content {
+  flex: 1;
+}
+
+.location-label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  margin-bottom: 2px;
+}
+
+.location-address {
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 2px;
+  line-height: 1.3;
+}
+
+.location-time {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Time Info */
+.time-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.time-icon {
+  width: 24px;
+  height: 24px;
+  background: #fef3c7;
+  color: #d97706;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.time-content {
+  flex: 1;
+}
+
+.time-label {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 2px;
+}
+
+.time-estimate {
+  font-weight: 600;
+  color: #059669;
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+
+.time-updated {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+/* Buttons */
+.btn {
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  font-size: 13px;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+.btn-success {
+  background: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+.btn-success:hover {
+  background: #059669;
+  border-color: #059669;
+  color: #ffffff;
+}
+
+.btn-danger {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.action-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.maps-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* Actions Container */
+.traslado-actions {
+  gap: 8px;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.empty-state i {
+  font-size: 64px;
+  color: #d1d5db;
+  margin-bottom: 24px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.empty-state h5 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 8px 0;
+}
+
+.empty-state p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 1rem !important;
+  }
+  
+  .card-body {
+    padding: 1rem !important;
+  }
+  
+  .traslado-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .action-btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .action-btn:last-child {
+    margin-bottom: 0;
+  }
+  
+  .section-title {
+    font-size: 16px;
+  }
+  
+  .patient-name {
+    font-size: 16px;
+  }
+  
+  .location-item {
+    margin-bottom: 1.5rem;
+  }
+  
+  .maps-btn {
+    margin-top: 1rem;
+  }
+  
+  .time-info {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .patient-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  
+  .section-title {
+    font-size: 15px;
+  }
+  
+  .patient-name {
+    font-size: 14px;
+  }
+  
+  .upcoming-details {
+    font-size: 13px;
+  }
+  
+  .location-address {
+    font-size: 14px;
+  }
+}

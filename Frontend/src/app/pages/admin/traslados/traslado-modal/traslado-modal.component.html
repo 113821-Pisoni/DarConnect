@@ -1,0 +1,268 @@
+<!-- Modal HTML Optimizado -->
+@if (isOpen()) {
+  <div class="modal-backdrop" (click)="onBackdropClick($event)">
+    <div class="modal-container">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <div class="modal-title">
+            <i class="bi bi-truck"></i>
+            {{ modalTitle }}
+          </div>
+          <button 
+            type="button" 
+            class="modal-close" 
+            (click)="onCancel()"
+            [disabled]="loading()">
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+          <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            
+            <!-- Agenda y Paciente -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-calendar-check"></i>
+                  Agenda/Chofer *
+                </label>
+                <select 
+                  class="form-control"
+                  [class.is-invalid]="isAgendaInvalid"
+                  formControlName="idAgenda"
+                  [disabled]="loading()">
+                  <option value="">Seleccionar agenda...</option>
+                  @for (agenda of agendas(); track agenda.id) {
+                    <option [value]="agenda.id">{{ getAgendaDisplayText(agenda) }}</option>
+                  }
+                </select>
+                @if (isAgendaInvalid) {
+                  <div class="error-message">
+                    {{ getErrorMessage('idAgenda') }}
+                  </div>
+                }
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-person-heart"></i>
+                  Paciente *
+                </label>
+                <select 
+                  class="form-control"
+                  [class.is-invalid]="isPacienteInvalid"
+                  formControlName="idPaciente"
+                  [disabled]="loading()">
+                  <option value="">Seleccionar paciente...</option>
+                  @for (paciente of pacientes(); track paciente.id) {
+                    <option [value]="paciente.id">{{ getPacienteDisplayText(paciente) }}</option>
+                  }
+                </select>
+                @if (isPacienteInvalid) {
+                  <div class="error-message">
+                    {{ getErrorMessage('idPaciente') }}
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Direcciones -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-geo-alt"></i>
+                  Dirección Origen *
+                </label>
+                <input 
+                  type="text" 
+                  class="form-control"
+                  [class.is-invalid]="isDireccionOrigenInvalid"
+                  formControlName="direccionOrigen"
+                  placeholder="Dirección origen"
+                  [disabled]="loading()">
+                @if (isDireccionOrigenInvalid) {
+                  <div class="error-message">
+                    {{ getErrorMessage('direccionOrigen') }}
+                  </div>
+                }
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-geo-alt-fill"></i>
+                  Dirección Destino *
+                </label>
+                <input 
+                  type="text" 
+                  class="form-control"
+                  [class.is-invalid]="isDireccionDestinoInvalid"
+                  formControlName="direccionDestino"
+                  placeholder="Dirección destino"
+                  [disabled]="loading()">
+                @if (isDireccionDestinoInvalid) {
+                  <div class="error-message">
+                    {{ getErrorMessage('direccionDestino') }}
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Hora, Fecha Inicio y Fecha Fin -->
+            <div class="form-row form-row-three">
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-clock"></i>
+                  Hora *
+                </label>
+                <input 
+                  type="time" 
+                  class="form-control"
+                  [class.is-invalid]="isHoraProgramadaInvalid"
+                  formControlName="horaProgramada"
+                  [disabled]="loading()">
+                @if (isHoraProgramadaInvalid) {
+                  <div class="error-message">
+                    {{ getErrorMessage('horaProgramada') }}
+                  </div>
+                }
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-calendar-plus"></i>
+                  Fecha Inicio *
+                </label>
+                <input 
+                  type="date" 
+                  class="form-control"
+                  [class.is-invalid]="isFechaInicioInvalid"
+                  formControlName="fechaInicio"
+                  [disabled]="loading()">
+                @if (isFechaInicioInvalid) {
+                  <div class="error-message">
+                    {{ getErrorMessage('fechaInicio') }}
+                  </div>
+                }
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-calendar-x"></i>
+                  Fecha Fin
+                </label>
+                <input 
+                  type="date" 
+                  class="form-control"
+                  [class.is-invalid]="isFechaFinInvalid"
+                  formControlName="fechaFin"
+                  [disabled]="loading()">
+                @if (isFechaFinInvalid) {
+                  <div class="error-message">
+                    {{ getErrorMessage('fechaFin') }}
+                  </div>
+                }
+                @if (validarFechas()) {
+                  <div class="error-message">
+                    {{ validarFechas() }}
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Días de la semana -->
+            <div class="form-group">
+              <label class="form-label">
+                <i class="bi bi-calendar-week"></i>
+                Días de la semana *
+              </label>
+              <div class="days-grid">
+                @for (dia of diasSemana(); track dia.id) {
+                  <label class="day-checkbox">
+                    <input 
+                      type="checkbox" 
+                      [checked]="dia.seleccionado"
+                      (change)="onDiaChange(dia.id, $event)"
+                      [disabled]="loading()">
+                    <span class="checkmark"></span>
+                    <span class="day-label">{{ dia.nombre }}</span>
+                  </label>
+                }
+              </div>
+              @if (!tieneDiasSeleccionados && form.touched) {
+                <div class="error-message">
+                  <i class="bi bi-exclamation-triangle"></i>
+                  Debe seleccionar al menos un día de la semana
+                </div>
+              }
+            </div>
+
+            <!-- Observaciones -->
+            <div class="form-group">
+              <label class="form-label">
+                <i class="bi bi-chat-text"></i>
+                Observaciones
+              </label>
+              <textarea 
+                class="form-control"
+                [class.is-invalid]="isObservacionesInvalid"
+                formControlName="observaciones"
+                placeholder="Observaciones opcionales..."
+                rows="3"
+                [disabled]="loading()">
+              </textarea>
+              @if (isObservacionesInvalid) {
+                <div class="error-message">
+                  {{ getErrorMessage('observaciones') }}
+                </div>
+              }
+            </div>
+
+            <!-- Estado Activo (solo en modo edición) -->
+            @if (mode() === 'edit') {
+              <div class="form-group">
+                <label class="form-checkbox">
+                  <input 
+                    type="checkbox" 
+                    class="form-checkbox-input"
+                    formControlName="activo"
+                    [disabled]="loading()">
+                  <span class="form-checkbox-label">
+                    <i class="bi bi-check-circle"></i>
+                    Traslado activo
+                  </span>
+                </label>
+              </div>
+            }
+          </form>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <button 
+            type="button" 
+            class="btn-secondary"
+            (click)="onCancel()"
+            [disabled]="loading()">
+            <i class="bi bi-x"></i>
+            Cancelar
+          </button>
+          <button 
+            type="button" 
+            class="btn-primary"
+            (click)="onSubmit()"
+            [disabled]="loading() || form.invalid || !tieneDiasSeleccionados || validarFechas()">
+            @if (loading()) {
+              <div class="spinner-sm"></div>
+            } @else {
+              <i class="bi bi-check"></i>
+            }
+            {{ submitButtonText }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

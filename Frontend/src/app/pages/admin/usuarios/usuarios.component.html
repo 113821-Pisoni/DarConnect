@@ -1,0 +1,215 @@
+<!-- HTML -->
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">Gestión de Usuarios</h1>
+        <p class="page-subtitle">Administrar usuarios del sistema</p>
+      </div>
+      <div class="header-actions">
+        <button 
+          class="primary-btn" 
+          (click)="abrirModalCrear()"
+          [disabled]="loading()">
+          <i class="bi bi-plus-circle"></i>
+          Nuevo Usuario
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="error-alert">
+      <i class="bi bi-exclamation-triangle"></i>
+      <span>{{ error() }}</span>
+      <button class="error-retry-btn" (click)="cargarUsuarios()">
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!loading() && !error()) {
+    <!-- Estadísticas Compactas -->
+    <div class="stats-container">
+      <div class="stat-item">
+        <div class="stat-indicator total"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().total }}</div>
+          <div class="stat-label">Total</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-indicator active"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().activos }}</div>
+          <div class="stat-label">Activos</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-indicator inactive"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().inactivos }}</div>
+          <div class="stat-label">Inactivos</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-indicator admin"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().administradores }}</div>
+          <div class="stat-label">Admins</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-indicator driver"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().choferes }}</div>
+          <div class="stat-label">Choferes</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla con Filtros Integrados -->
+    <div class="table-section">
+      <div class="table-header">
+        <div class="table-title">Lista de Usuarios</div>
+        <div class="filter-controls">
+          <button 
+            type="button" 
+            class="filter-btn"
+            [class.active]="filtroActivo() === 'TODOS'"
+            (click)="cambiarFiltro('TODOS')">
+            Todos
+          </button>
+          <button 
+            type="button" 
+            class="filter-btn filter-success"
+            [class.active]="filtroActivo() === 'ACTIVOS'"
+            (click)="cambiarFiltro('ACTIVOS')">
+            Activos
+          </button>
+          <button 
+            type="button" 
+            class="filter-btn filter-secondary"
+            [class.active]="filtroActivo() === 'INACTIVOS'"
+            (click)="cambiarFiltro('INACTIVOS')">
+            Inactivos
+          </button>
+          <button 
+            type="button" 
+            class="filter-btn filter-danger"
+            [class.active]="filtroActivo() === 'ADMINISTRADOR'"
+            (click)="cambiarFiltro('ADMINISTRADOR')">
+            Administradores
+          </button>
+          <button 
+            type="button" 
+            class="filter-btn filter-info"
+            [class.active]="filtroActivo() === 'CHOFER'"
+            (click)="cambiarFiltro('CHOFER')">
+            Choferes
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      @if (loading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando datos...</p>
+        </div>
+      } 
+      <!-- Empty State -->
+      @else if (usuariosFiltrados().length === 0) {
+        <div class="empty-state">
+          <i class="bi bi-inbox"></i>
+          <h5>No hay usuarios</h5>
+          <p>No se encontraron usuarios para el filtro seleccionado.</p>
+        </div>
+      } 
+      <!-- Data Table -->
+      @else {
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Fecha Creación</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (usuario of usuariosFiltrados(); track usuario.id) {
+                <tr>
+                  <td>
+                    <div class="user-cell">
+                      <div class="user-icon">
+                        <i class="bi bi-person"></i>
+                      </div>
+                      <div class="user-info">
+                        <div class="user-name">{{ usuario.usuario }}</div>
+                       
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span [class]="getRolBadgeClass(usuario.rol)" class="role-badge">
+                      {{ usuario.rol }}
+                    </span>
+                  </td>
+                  <td>
+                    <span [class]="getEstadoBadgeClass(usuario.activo)" class="status-badge">
+                      {{ usuario.activo ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="date-cell">
+                      {{ usuario.fechaCreacion ? (usuario.fechaCreacion | date:'dd/MM/yyyy') : 'N/A' }}
+                    </div>
+                  </td>
+                  <td>
+                    <div class="actions-cell">
+                      <button 
+                        type="button"
+                        class="action-btn btn-edit"
+                        (click)="abrirModalEditar(usuario)"
+                        title="Editar Usuario">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      
+                      <button 
+                        type="button"
+                        [class]="usuario.activo ? 'action-btn btn-deactivate' : 'action-btn btn-activate'"
+                        (click)="toggleEstado(usuario)"
+                        [title]="usuario.activo ? 'Desactivar Usuario' : 'Activar Usuario'">
+                        <i [class]="usuario.activo ? 'bi bi-x-circle' : 'bi bi-check-circle'"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Modal Component -->
+  <app-usuario-modal
+    [isVisible]="modalVisible()"
+    [usuario]="usuarioSeleccionado()"
+    [modalType]="modalType()"
+    (modalClose)="cerrarModal()"
+    (usuarioSubmit)="onUsuarioSubmit($event)"
+    (passwordSubmit)="onPasswordSubmit($event)">
+  </app-usuario-modal>
+</div>

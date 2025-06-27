@@ -1,0 +1,45 @@
+<!-- src/app/components/sidebar/sidebar.component.html -->
+<nav class="sidebar d-flex flex-column bg-primary"
+     [class.collapsed]="isCollapsed()"
+     [class.expanded]="!isCollapsed()"
+     (click)="toggleSidebar()">
+  
+  <!-- Header -->
+  <div class="sidebar-header p-3 d-flex align-items-center">
+    @if (!isCollapsed()) {
+      <h5 class="text-white mb-0 fw-bold me-auto">
+        <i class="bi bi-car-front"></i>  Dar  Connect
+      </h5>
+    } @else {
+      <i class="bi bi-car-front text-white"></i>
+    }
+  </div>
+
+  <!-- Menú de navegación con secciones -->
+  <div class="nav flex-column flex-grow-1 px-2">
+    @for (section of menuItems(); track section.section) {
+      <div class="nav-section mb-3">
+        @if (!isCollapsed() && section.items.length > 0) {
+          <div class="nav-section-title px-3 mb-2">
+            <small class="text-white-50 text-uppercase fw-semibold">{{ section.section }}</small>
+          </div>
+        }
+        
+        @for (item of section.items; track item.route) {
+          <div class="nav-item mb-1">
+            <a [routerLink]="item.route" 
+              routerLinkActive="active"
+              class="nav-link text-white rounded d-flex align-items-center py-2 px-3"
+              (click)="onNavLinkClick($event)">
+              <i [class]="item.icon"></i>
+              @if (!isCollapsed()) {
+                <span class="ms-3">{{ item.label }}</span>
+              }
+            </a>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+</nav>

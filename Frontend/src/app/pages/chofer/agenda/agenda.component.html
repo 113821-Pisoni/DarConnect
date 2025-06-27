@@ -1,0 +1,198 @@
+<!-- HTML -->
+<div class="container-fluid p-4">
+  <div class="agenda-container">
+    <div class="agenda-header">
+      <h3 class="agenda-title">
+        <i class="bi bi-calendar-week"></i>
+        Agenda Semanal de Traslados
+        <hr>
+      </h3>
+    </div>
+
+    <!-- Loading -->
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Cargando agenda...</p>
+      </div>
+    }
+
+    <!-- Error -->
+    @if (error()) {
+      <div class="error-alert">
+        <i class="bi bi-exclamation-triangle"></i>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    @if (agendaData() && !loading()) {
+      
+      <!-- Vista DESKTOP: Grid -->
+      <div class="d-none d-md-block">
+        <div class="agenda-content">
+          <div class="table-responsive">
+            <table class="table table-borderless agenda-table">
+              <thead>
+                <tr>
+                  <th class="time-header"></th>
+                  @for (dia of diasSemana; track dia) {
+                    <th class="day-header">{{ dia }}</th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (horaData of organizarTrasladosPorGrid() | keyvalue; track horaData.key) {
+                  <tr>
+                    <td class="time-cell">{{ horaData.key }}</td>
+                    @for (traslado of horaData.value; track $index) {
+                      <td>
+                        @if (traslado) {
+                          <div class="traslado-card" (click)="abrirDetalle(traslado)">
+                            <div class="patient-name">{{ traslado.nombreCompletoPaciente }}</div>
+                            @if (traslado.sillaRueda) {
+                              <div class="wheelchair-badge">
+                                <i class="bi bi-person-wheelchair"></i>
+                              </div>
+                            }
+                          </div>
+                        } @else {
+                          <div class="empty-slot">—</div>
+                        }
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vista MOBILE: Lista por día -->
+      <div class="d-md-none">
+        <div class="agenda-content">
+          @for (dia of diasSemana; track $index; let i = $index) {
+            <div class="card day-card mb-3">
+              <div class="card-header day-card-header">
+                <h6 class="mb-0 day-card-title">{{ dia }}</h6>
+              </div>
+              <div class="card-body p-2">
+                @for (horaData of organizarTrasladosPorGrid() | keyvalue; track horaData.key) {
+                  @if (horaData.value[i]) {
+                    <div class="mobile-traslado" (click)="abrirDetalle(horaData.value[i])">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                          <div class="mobile-time">{{ horaData.key }}</div>
+                          <div class="mobile-patient">{{ horaData.value[i].nombreCompletoPaciente }}</div>
+                        </div>
+                        @if (horaData.value[i].sillaRueda) {
+                          <div class="mobile-wheelchair">
+                            <i class="bi bi-person-wheelchair"></i>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                }
+                @if (getTrasladosParaDia(i).length === 0) {
+                  <div class="empty-day">
+                    <small>Sin traslados programados</small>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+    }
+  </div>
+</div>
+
+<!-- Modal de Detalle -->
+@if (mostrarModal()) {
+  <div class="modal-backdrop">
+    <div class="modal-container">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">
+            <i class="bi bi-info-circle"></i>
+            Detalle del Traslado
+          </div>
+          <button type="button" class="modal-close" (click)="cerrarModal()">
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+        
+        @if (trasladoSeleccionado()) {
+          <div class="modal-body">
+            <div class="detail-section">
+              <div class="detail-label">
+                <i class="bi bi-person"></i>
+                Paciente
+              </div>
+              <div class="detail-value">{{ trasladoSeleccionado()?.nombreCompletoPaciente }}</div>
+              @if (trasladoSeleccionado()?.telefonoPaciente) {
+                <div class="detail-phone">
+                  <i class="bi bi-telephone"></i>
+                  {{ trasladoSeleccionado()?.telefonoPaciente }}
+                </div>
+              }
+            </div>
+
+            <div class="detail-section">
+              <div class="detail-label">
+                <i class="bi bi-clock"></i>
+                Horario
+              </div>
+              <div class="detail-value">{{ formatearHora(trasladoSeleccionado()?.horaProgramada) }}</div>
+              @if (trasladoSeleccionado()?.sillaRueda) {
+                <div class="wheelchair-badge-modal">
+                  <i class="bi bi-person-wheelchair"></i>
+                  Silla de ruedas
+                </div>
+              }
+            </div>
+
+            <div class="detail-section">
+              <div class="detail-label">
+                <i class="bi bi-geo-alt"></i>
+                Ruta
+              </div>
+              <div class="route-info">
+                <div class="route-item">
+                  <strong>Origen:</strong> {{ trasladoSeleccionado()?.direccionOrigen }}
+                </div>
+                <div class="route-item">
+                  <strong>Destino:</strong> {{ trasladoSeleccionado()?.direccionDestino }}
+                </div>
+              </div>
+            </div>
+
+            @if (trasladoSeleccionado()?.observaciones) {
+              <div class="detail-section">
+                <div class="detail-label">
+                  <i class="bi bi-chat-text"></i>
+                  Observaciones
+                </div>
+                <div class="detail-value">{{ trasladoSeleccionado()?.observaciones }}</div>
+              </div>
+            }
+          </div>
+        }
+        
+        <div class="modal-footer">
+          @if (trasladoSeleccionado()?.telefonoPaciente) {
+            <button type="button" class="btn btn-success btn-sm" 
+                    (click)="llamarPaciente(trasladoSeleccionado()?.telefonoPaciente)">
+              <i class="bi bi-telephone me-1"></i>Llamar
+            </button>
+          }
+          <button type="button" class="btn btn-secondary btn-sm" (click)="cerrarModal()">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

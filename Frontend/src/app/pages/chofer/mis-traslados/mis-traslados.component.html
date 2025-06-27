@@ -1,0 +1,195 @@
+<div class="container-fluid py-4">
+  
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando traslados...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="error-alert">
+      <i class="bi bi-exclamation-triangle"></i>
+      <span>{{ error() }}</span>
+      <button class="error-retry-btn" (click)="cargarTraslados()">
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!isLoading() && !error()) {
+    
+    <!-- Traslados Actuales -->
+    @if (trasladosActuales().length > 0) {
+      <div class="section-container mb-5">
+        <div class="section-header">
+          <h4 class="section-title">
+            <i class="bi bi-play-circle"></i>
+            Traslado{{ trasladosActuales().length > 1 ? 's' : '' }} Actual{{ trasladosActuales().length > 1 ? 'es' : '' }}
+          </h4>
+        </div>
+        
+        @for (traslado of trasladosActuales(); track traslado.idTraslado) {
+          <div class="card traslado-card traslado-actual mb-3">
+            <div class="card-body">
+              
+              <!-- Header del traslado -->
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="d-flex align-items-center">
+                  <div class="patient-avatar">
+                    <i class="bi bi-person-fill"></i>
+                  </div>
+                  <div class="ms-3">
+                    <h5 class="patient-name mb-1">{{ traslado.nombreCompletoPaciente }}</h5>
+                    <div class="patient-info">
+                      <span class="patient-label">Paciente</span>
+                      @if (traslado.sillaRueda) {
+                        <i class="bi bi-person-wheelchair wheelchair-icon" title="Requiere silla de ruedas"></i>
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div class="d-flex gap-2 traslado-actions">
+                  <button class="btn btn-primary btn-sm action-btn" 
+                          (click)="contactarPaciente(traslado)">
+                    <i class="bi bi-telephone me-1"></i>
+                    Contactar
+                  </button>
+                  <button class="btn btn-danger btn-sm action-btn"
+                          (click)="finalizarTraslado(traslado)"
+                          [disabled]="!traslado.puedeFinalizar">
+                    <i class="bi bi-stop-circle me-1"></i>
+                    Finalizar
+                  </button>
+                </div>
+              </div>
+
+              <!-- Origen y Destino -->
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <div class="location-item">
+                    <div class="location-icon origin">
+                      <i class="bi bi-geo-alt"></i>
+                    </div>
+                    <div class="location-content">
+                      <div class="location-label">Origen</div>
+                      <div class="location-address">{{ traslado.direccionOrigen }}</div>
+                      <div class="location-time">Recogido: {{ formatearHora(traslado.horaProgramada) }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="location-item">
+                    <div class="location-icon destination">
+                      <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <div class="location-content">
+                      <div class="location-label">Destino</div>
+                      <div class="location-address">{{ traslado.direccionDestino }}</div>
+                      <div class="location-time">ETA: {{ formatearHora(traslado.horaProgramada) }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tiempo y Ruta -->
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="time-info">
+                    <div class="time-icon">
+                      <i class="bi bi-clock"></i>
+                    </div>
+                    <div class="time-content">
+                      <div class="time-label">Tiempo según tráfico</div>
+                      <div class="d-flex align-items-center">
+                        <div class="time-estimate me-2">{{ traslado.tiempoActual || 'Calcular tiempo' }}</div>
+                        <button 
+                          class="btn btn-link p-0 text-primary" 
+                          (click)="calcularTiempoReal(traslado)"
+                          [disabled]="traslado.calculando"
+                          style="font-size: 0.9rem;">
+                          <i class="bi bi-arrow-clockwise" [class.spin]="traslado.calculando"></i>
+                        </button>
+                      </div>
+                      @if (traslado.ultimaActualizacion) {
+                        <div class="time-updated">{{ traslado.ultimaActualizacion }}</div>
+                      }
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-md-6 d-flex align-items-center">
+                  <button class="btn btn-primary btn-sm maps-btn"
+                          (click)="abrirGoogleMaps(traslado)">
+                    <i class="bi bi-map me-2"></i>
+                    Abrir en Google Maps
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Próximos Traslados -->
+    @if (proximosTraslados().length > 0) {
+      <div class="section-container mb-4">
+        <div class="section-header">
+          <h4 class="section-title">
+            <i class="bi bi-clock"></i>
+            Próximos Traslados
+          </h4>
+        </div>
+        
+        @for (traslado of proximosTraslados(); track traslado.idTraslado) {
+          <div class="card traslado-card traslado-upcoming mb-3">
+            <div class="card-body">
+              
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                  <div class="patient-avatar upcoming">
+                    <i class="bi bi-clock"></i>
+                  </div>
+                  <div class="ms-3">
+                    <h6 class="patient-name mb-1">{{ traslado.nombreCompletoPaciente }}</h6>
+                    <div class="upcoming-details">
+                      {{ formatearHora(traslado.horaProgramada) }} - {{ traslado.direccionDestino }}
+                    </div>
+                    <div class="patient-info">
+                      @if (traslado.sillaRueda) {
+                        <i class="bi bi-person-wheelchair wheelchair-icon" title="Requiere silla de ruedas"></i>
+                      }
+                    </div>
+                  </div>
+                </div>
+                <button class="btn btn-success btn-sm action-btn"
+                        (click)="iniciarTraslado(traslado)"
+                        [disabled]="!traslado.puedeIniciar">
+                  <i class="bi bi-play-fill me-1"></i>
+                  Iniciar
+                </button>
+              </div>
+
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Estado vacío -->
+    @if (trasladosActuales().length === 0 && proximosTraslados().length === 0) {
+      <div class="empty-state">
+        <i class="bi bi-calendar-check"></i>
+        <h5>No hay traslados programados para hoy</h5>
+        <p>Disfruta tu día libre</p>
+      </div>
+    }
+
+  }
+
+</div>

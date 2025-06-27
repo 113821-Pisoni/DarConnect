@@ -1,0 +1,88 @@
+@if (isOpen()) {
+  <div class="modal-backdrop" (click)="onBackdropClick($event)">
+    <div class="modal-container">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <div class="modal-title">
+            <i class="bi bi-calendar-check"></i>
+            Nueva Agenda
+          </div>
+          <button 
+            type="button" 
+            class="modal-close" 
+            (click)="onCancel()"
+            [disabled]="loading()">
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+          @if (choferesDisponibles().length === 0) {
+            <!-- Sin choferes disponibles -->
+            <div class="warning-alert">
+              <i class="bi bi-exclamation-triangle"></i>
+              <div>
+                <div class="alert-title">No hay choferes disponibles</div>
+                <div class="alert-message">Todos los choferes activos ya tienen agenda asignada.</div>
+              </div>
+            </div>
+          } @else {
+            <!-- Formulario -->
+            <form [formGroup]="form" (ngSubmit)="onSubmit()">
+              <!-- Chofer -->
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="bi bi-person-badge"></i>
+                  Chofer
+                </label>
+                <select 
+                  class="form-select"
+                  [class.is-invalid]="isChoferInvalid"
+                  formControlName="idChofer"
+                  [disabled]="loading()">
+                  <option value="">Seleccionar chofer...</option>
+                  @for (chofer of choferesDisponibles(); track chofer.id) {
+                    <option [value]="chofer.id">{{ getChoferDisplayText(chofer) }}</option>
+                  }
+                </select>
+                @if (isChoferInvalid) {
+                  <div class="error-message">
+                    {{ choferErrorMessage }}
+                  </div>
+                }
+              </div>
+            </form>
+          }
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <button 
+            type="button" 
+            class="btn-secondary"
+            (click)="onCancel()"
+            [disabled]="loading()">
+            <i class="bi bi-x"></i>
+            Cancelar
+          </button>
+          @if (choferesDisponibles().length > 0) {
+            <button 
+              type="submit" 
+              class="btn-primary"
+              (click)="onSubmit()"
+              [disabled]="loading() || form.invalid">
+              @if (loading()) {
+                <div class="spinner-sm"></div>
+              } @else {
+                <i class="bi bi-check"></i>
+              }
+              Crear
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}

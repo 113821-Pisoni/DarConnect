@@ -1,0 +1,242 @@
+<!-- Modal Backdrop -->
+@if (isOpen()) {
+  <div class="modal-backdrop" (click)="onBackdropClick($event)">
+    <div class="modal-container">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi bi-person-heart me-2"></i>
+            {{ modalTitle }}
+          </h5>
+ 
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+          <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <!-- Nombre y Apellido -->
+            <div class="row">
+              <div class="col-6">
+                <div class="form-floating mb-3">
+                  <input 
+                    type="text" 
+                    class="form-control"
+                    [class.is-invalid]="isNombreInvalid"
+                    id="nombre" 
+                    formControlName="nombre"
+                    placeholder="Nombre"
+                    [disabled]="loading()">
+                  <label for="nombre">
+                    <i class="bi bi-person me-2"></i>Nombre *
+                  </label>
+                  @if (isNombreInvalid) {
+                    <div class="invalid-feedback">
+                      {{ getErrorMessage('nombre') }}
+                    </div>
+                  }
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-floating mb-3">
+                  <input 
+                    type="text" 
+                    class="form-control"
+                    [class.is-invalid]="isApellidoInvalid"
+                    id="apellido" 
+                    formControlName="apellido"
+                    placeholder="Apellido"
+                    [disabled]="loading()">
+                  <label for="apellido">
+                    <i class="bi bi-person me-2"></i>Apellido *
+                  </label>
+                  @if (isApellidoInvalid) {
+                    <div class="invalid-feedback">
+                      {{ getErrorMessage('apellido') }}
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- DNI y Teléfono -->
+            <div class="row">
+              <div class="col-6">
+                <div class="form-floating mb-3">
+                  <input 
+                    type="text" 
+                    class="form-control"
+                    [class.is-invalid]="isDniInvalid"
+                    id="dni" 
+                    formControlName="dni"
+                    placeholder="DNI"
+                    (keypress)="onlyNumbers($event)"
+                    maxlength="8"
+                    [disabled]="loading()">
+                  <label for="dni">
+                    <i class="bi bi-credit-card me-2"></i>DNI *
+                  </label>
+                  @if (isDniInvalid) {
+                    <div class="invalid-feedback">
+                      {{ getErrorMessage('dni') }}
+                    </div>
+                  }
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-floating mb-3">
+                  <input 
+                    type="tel" 
+                    class="form-control"
+                    [class.is-invalid]="isTelefonoInvalid"
+                    id="telefono" 
+                    formControlName="telefono"
+                    placeholder="Teléfono"
+                    (keypress)="onlyNumbers($event)"
+                    maxlength="10"
+                    [disabled]="loading()">
+                  <label for="telefono">
+                    <i class="bi bi-telephone me-2"></i>Teléfono
+                  </label>
+                  @if (isTelefonoInvalid) {
+                    <div class="invalid-feedback">
+                      {{ getErrorMessage('telefono') }}
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-floating mb-3">
+              <input 
+                type="email" 
+                class="form-control"
+                [class.is-invalid]="isEmailInvalid"
+                id="email" 
+                formControlName="email"
+                placeholder="Email"
+                [disabled]="loading()">
+              <label for="email">
+                <i class="bi bi-envelope me-2"></i>Email
+              </label>
+              @if (isEmailInvalid) {
+                <div class="invalid-feedback">
+                  {{ getErrorMessage('email') }}
+                </div>
+              }
+            </div>
+
+            <!-- Dirección y Ciudad -->
+            <div class="row">
+              <div class="col-8">
+                <div class="form-floating mb-3">
+                  <input 
+                    type="text" 
+                    class="form-control"
+                    [class.is-invalid]="isDireccionInvalid"
+                    id="direccion" 
+                    formControlName="direccion"
+                    placeholder="Dirección"
+                    [disabled]="loading()">
+                  <label for="direccion">
+                    <i class="bi bi-geo-alt me-2"></i>Dirección
+                  </label>
+                  @if (isDireccionInvalid) {
+                    <div class="invalid-feedback">
+                      {{ getErrorMessage('direccion') }}
+                    </div>
+                  }
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-floating mb-3">
+                  <input 
+                    type="text" 
+                    class="form-control"
+                    [class.is-invalid]="isCiudadInvalid"
+                    id="ciudad" 
+                    formControlName="ciudad"
+                    placeholder="Ciudad"
+                    [disabled]="loading()">
+                  <label for="ciudad">
+                    <i class="bi bi-building me-2"></i>Ciudad
+                  </label>
+                  @if (isCiudadInvalid) {
+                    <div class="invalid-feedback">
+                      {{ getErrorMessage('ciudad') }}
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+           <!-- Obra Social -->
+            <div class="form-floating mb-3">
+              <select 
+                class="form-select" 
+                id="obraSocial" 
+                formControlName="idObraSocial"
+                [disabled]="loading()">
+                <option value="">Seleccione obra social...</option>
+                @for (obra of obrasSocialesActivas; track obra.id) {
+                  <option [value]="obra.id">{{ obra.descripcion }}</option>
+                }
+              </select>
+              <label for="obraSocial">
+                <i class="bi bi-heart-pulse me-2"></i>Obra Social
+              </label>
+            </div>
+
+            <!-- Checkboxes -->
+            <div class="form-check mb-3">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                id="sillaRueda" 
+                formControlName="sillaRueda"
+                [disabled]="loading()">
+              <label class="form-check-label" for="sillaRueda">
+                <i class="bi bi-person-wheelchair me-2"></i>Requiere silla de ruedas
+              </label>
+            </div>
+
+            <div class="form-check mb-4">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                id="activo" 
+                formControlName="activo"
+                [disabled]="loading()">
+              <label class="form-check-label" for="activo">
+                Paciente activo
+              </label>
+            </div>
+          </form>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <button 
+            type="button" 
+            class="btn btn-secondary"
+            (click)="onCancel()"
+            [disabled]="loading()">
+            <i class="bi bi-x me-1"></i>Cancelar
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-primary"
+            (click)="onSubmit()"
+            [disabled]="loading() || form.invalid">
+            @if (loading()) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            <i class="bi bi-check me-1"></i>{{ submitButtonText }}
+          </button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+}

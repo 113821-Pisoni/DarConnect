@@ -1,0 +1,272 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">Gestión de Traslados</h1>
+        <p class="page-subtitle">Administrar traslados del sistema</p>
+      </div>
+      <div class="header-actions">
+        <button 
+          class="primary-btn" 
+          (click)="abrirModalCrear()"
+          [disabled]="loading()">
+          <i class="bi bi-plus-circle"></i>
+          Nuevo Traslado
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="error-alert">
+      <i class="bi bi-exclamation-triangle"></i>
+      <span>{{ error() }}</span>
+      <button class="error-retry-btn" (click)="cargarDatos()">
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!loading() && !error()) {
+    <!-- Estadísticas Compactas -->
+    <div class="stats-container">
+      <div class="stat-item">
+        <div class="stat-indicator total"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().totalTraslados }}</div>
+          <div class="stat-label">Total</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-indicator active"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().trasladosActivos }}</div>
+          <div class="stat-label">Activos</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-indicator inactive"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().trasladosInactivos }}</div>
+          <div class="stat-label">Inactivos</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-indicator filtered"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ trasladosFiltrados().length }}</div>
+          <div class="stat-label">Filtrados</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla con Filtros Integrados -->
+    <div class="table-section">
+      <div class="table-header">
+        <div class="table-title">Lista de Traslados</div>
+        <div class="filter-controls">
+          <button 
+            type="button" 
+            class="filter-btn"
+            [class.active]="filtroActivo() === 'TODOS'"
+            (click)="cambiarFiltro('TODOS')">
+            Todos
+          </button>
+          <button 
+            type="button" 
+            class="filter-btn"
+            [class.active]="filtroActivo() === 'ACTIVOS'"
+            (click)="cambiarFiltro('ACTIVOS')">
+            Activos
+          </button>
+          <button 
+            type="button" 
+            class="filter-btn"
+            [class.active]="filtroActivo() === 'INACTIVOS'"
+            (click)="cambiarFiltro('INACTIVOS')">
+            Inactivos
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtros de Búsqueda -->
+      <div class="search-section">
+        <div class="search-controls">
+          <div class="search-group">
+            <div class="search-input">
+              <i class="bi bi-person-heart"></i>
+              <input 
+                type="text" 
+                placeholder="Buscar paciente..."
+                [value]="filtroPaciente()"
+                (input)="filtroPaciente.set($any($event.target).value)">
+            </div>
+            <div class="search-input">
+              <i class="bi bi-person-badge"></i>
+              <input 
+                type="text" 
+                placeholder="Buscar chofer..."
+                [value]="filtroChofer()"
+                (input)="filtroChofer.set($any($event.target).value)">
+            </div>
+            <button 
+              type="button" 
+              class="clear-btn"
+              (click)="limpiarFiltros()"
+              title="Limpiar Filtros">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      @if (loading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando datos...</p>
+        </div>
+      } 
+      <!-- Empty State -->
+      @else if (trasladosFiltrados().length === 0) {
+        <div class="empty-state">
+          <i class="bi bi-inbox"></i>
+          <h5>No hay traslados</h5>
+          <p>No se encontraron traslados para el filtro seleccionado.</p>
+        </div>
+      } 
+      <!-- Data Table -->
+      @else {
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Traslado</th>
+                <th>Chofer</th>
+                <th>Paciente</th>
+                <th>Horario y Días</th>
+                <th>Ruta</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (traslado of trasladosFiltrados(); track traslado.id) {
+                <tr>
+                  <td>
+                    <div class="traslado-cell">
+                      <div class="traslado-icon">
+                        <i class="bi bi-truck"></i>
+                      </div>
+                      <div class="traslado-info">
+                        <div class="traslado-number">Traslado #{{ traslado.id }}</div>
+                        <div class="traslado-dates">
+                          {{ traslado.fechaInicio | date:'dd/MM/yyyy' }}
+                          @if (traslado.fechaFin) {
+                            - {{ traslado.fechaFin | date:'dd/MM/yyyy' }}
+                          } @else {
+                            - Indefinido
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="chofer-cell">
+                      <div class="chofer-name">{{ getNombreChofer(traslado.idAgenda) }}</div>
+                      <div class="agenda-id">Agenda #{{ traslado.idAgenda }}</div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="patient-cell">
+                      <div class="patient-name">{{ getNombrePaciente(traslado.idPaciente) }}</div>
+                      @if (necesitaSillaRuedas(traslado.idPaciente)) {
+                        <div class="wheelchair-indicator">
+                          <i class="bi bi-person-wheelchair"></i>
+                          Silla de ruedas
+                        </div>
+                      }
+                    </div>
+                  </td>
+                  <td>
+                    <div class="schedule-cell">
+                      <div class="schedule-time">{{ formatearHora(traslado.horaProgramada) }}</div>
+                      <div class="schedule-days">{{ getDiasTexto(traslado.diasSemana) }}</div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="route-cell">
+                      <div class="route-item origin">
+                        <i class="bi bi-geo-alt"></i>
+                        {{ traslado.direccionOrigen || 'No especificado' }}
+                      </div>
+                      <div class="route-item destination">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        {{ traslado.direccionDestino || 'No especificado' }}
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span [class]="getEstadoBadgeClass(traslado.activo)" class="status-badge">
+                      {{ traslado.activo ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="actions-cell">
+                      <button 
+                        type="button"
+                        class="action-btn btn-edit"
+                        (click)="abrirModalEditar(traslado)"
+                        title="Editar Traslado">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      
+                      @if (traslado.activo) {
+                        <button 
+                          type="button"
+                          class="action-btn btn-deactivate"
+                          (click)="darDeBaja(traslado)"
+                          title="Dar de Baja Traslado">
+                          <i class="bi bi-x-circle"></i>
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Fila de observaciones (si las hay) -->
+                @if (traslado.observaciones) {
+                  <tr class="observation-row">
+                    <td colspan="7">
+                      <div class="observation-content">
+                        <i class="bi bi-chat-text"></i>
+                        <strong>Observaciones:</strong> {{ traslado.observaciones }}
+                      </div>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Modal Component -->
+  <app-traslados-modal
+    [isOpen]="modalOpen()"
+    [mode]="modalMode()"
+    [traslado]="selectedTraslado()"
+    [agendas]="agendasActivas()"
+    [pacientes]="pacientesActivos()"
+    (save)="onSaveTraslado($event)"
+    (close)="cerrarModal()">
+  </app-traslados-modal>
+</div>

@@ -1,0 +1,186 @@
+<!-- admin-dashboard.component.html - Bootstrap 5 Responsive -->
+<div class="container-fluid p-3 p-md-4">
+  
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+          <div>
+            <h1 class="dashboard-title">
+              Dashboard<span class="d-none d-lg-inline"> Administrativo</span>
+            </h1>
+            <p class="dashboard-subtitle">Panel de control y estadísticas del sistema</p>
+          </div>
+            <div class="align-self-end align-self-md-center">
+            <select 
+                class="form-select form-select-sm"
+                style="width: 140px;"
+                [value]="periodo()"
+                (change)="onPeriodoChange($event)"
+                [disabled]="loading()">
+                <option value="hoy">Hoy</option>
+                <option value="semana">Esta semana</option>
+                <option value="mes">Este mes</option>
+                <option value="año">Este año</option>
+            </select>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-2 text-muted">Cargando dashboard...</p>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (error()) {
+    <div class="alert alert-danger d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2" role="alert">
+      <span class="flex-grow-1">{{ error() }}</span>
+      <button class="btn btn-sm btn-outline-danger" (click)="cargarDatos()">
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!loading() && !error()) {
+    
+    <!-- Stats Cards - Layout vertical como chofer -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="stats-container">
+          @for (metrica of metricasGenerales(); track metrica.titulo) {
+            <div class="stat-item">
+              <div class="stat-indicator" [ngClass]="'bg-' + metrica.color"></div>
+              <div class="stat-content">
+                <div class="stat-number">{{ metrica.valor }}</div>
+                <div class="stat-label">{{ metrica.titulo }}</div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4 g-3">
+      <!-- Rendimiento Choferes -->
+      <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white border-bottom">
+            <h5 class="card-title mb-0">
+              <span class="d-none d-md-inline">Top 5 Choferes</span>
+              <span class="d-md-none">Choferes</span>
+              <small class="text-muted">({{ periodo() }})</small>
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas #rendimientoChart></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Obras Sociales -->
+      <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white border-bottom">
+            <h5 class="card-title mb-0">
+              <span class="d-none d-md-inline">Pacientes por</span> Obra Social
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas #obrasSocialesChart></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-bottom">
+            <h5 class="card-title mb-0">
+              <span class="d-none d-md-inline">Rendimiento Detallado por</span> Chofer
+            </h5>
+          </div>
+          <div class="card-body p-0">
+            @if (topChoferes().length === 0) {
+              <div class="text-center py-5">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+                <h5 class="mt-3">Sin datos de choferes</h5>
+                <p class="text-muted">No hay estadísticas para el período seleccionado.</p>
+              </div>
+            } @else {
+              <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Chofer</th>
+                      <th class="text-center d-none d-sm-table-cell">Finalizados</th>
+                      <th class="text-center d-none d-sm-table-cell">Cancelados</th>
+                      <th class="text-center">% Éxito</th>
+                      <th class="text-center d-none d-md-table-cell">Con Silla</th>
+                      <th class="text-center d-none d-md-table-cell">Sin Silla</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (chofer of topChoferes(); track chofer.idChofer) {
+                      <tr>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <div class="chofer-avatar me-2 me-md-3">
+                              {{ chofer.nombreCompleto.charAt(0) }}
+                            </div>
+                            <div>
+                              <div class="fw-medium">{{ chofer.nombreCompleto }}</div>
+                              <!-- Info extra en mobile -->
+                              <div class="d-sm-none">
+                                <small class="text-muted">
+                                  <span class="badge bg-success me-1">{{ chofer.finalizados }}</span>
+                                  <span class="badge bg-danger">{{ chofer.cancelados }}</span>
+                                </small>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="text-center d-none d-sm-table-cell">
+                          <span class="badge bg-success">{{ chofer.finalizados }}</span>
+                        </td>
+                        <td class="text-center d-none d-sm-table-cell">
+                          <span class="badge bg-danger">{{ chofer.cancelados }}</span>
+                        </td>
+                        <td class="text-center">
+                          <span 
+                            class="badge"
+                            [ngClass]="chofer.porcentajeExito >= 80 ? 'bg-success' : chofer.porcentajeExito >= 60 ? 'bg-warning' : 'bg-danger'">
+                            {{ chofer.porcentajeExito }}%
+                          </span>
+                        </td>
+                        <td class="text-center d-none d-md-table-cell">{{ chofer.conSilla }}</td>
+                        <td class="text-center d-none d-md-table-cell">{{ chofer.sinSilla }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+  }
+</div>

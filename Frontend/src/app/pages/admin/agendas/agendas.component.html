@@ -1,0 +1,186 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="page-title">Gestión de Agendas</h1>
+        <p class="page-subtitle">Administrar agendas de choferes</p>
+      </div>
+      <div class="header-actions">
+        <!--<button 
+          type="button"
+          class="debug-btn"
+          (click)="debugAgendas()"
+          title="Debug Agendas">
+          <i class="bi bi-bug"></i>
+        </button>-->
+        <button 
+          class="primary-btn" 
+          (click)="abrirModalCrear()"
+          [disabled]="loading()">
+          <i class="bi bi-plus-circle"></i>
+          Nueva Agenda
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="error-alert">
+      <i class="bi bi-exclamation-triangle"></i>
+      <span>{{ error() }}</span>
+      <button class="error-retry-btn" (click)="cargarDatos()">
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!loading() && !error()) {
+    <!-- Estadísticas Compactas -->
+    <div class="stats-container">
+      <div class="stat-item">
+        <div class="stat-indicator total"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().totalAgendas }}</div>
+          <div class="stat-label">Total</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-indicator active"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().agendasActivas }}</div>
+          <div class="stat-label">Activas</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-indicator inactive"></div>
+        <div class="stat-content">
+          <div class="stat-number">{{ estadisticas().agendasInactivas }}</div>
+          <div class="stat-label">Inactivas</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla con Filtros Integrados -->
+    <div class="table-section">
+      <div class="table-header">
+        <div class="table-title">Lista de Agendas</div>
+        <div class="filter-controls">
+          <button 
+            type="button" 
+            class="filter-btn"
+            [class.active]="filtroActivo() === 'TODAS'"
+            (click)="cambiarFiltro('TODAS')">
+            Todas
+          </button>
+          <button 
+            type="button" 
+            class="filter-btn"
+            [class.active]="filtroActivo() === 'ACTIVAS'"
+            (click)="cambiarFiltro('ACTIVAS')">
+            Activas
+          </button>
+          <button 
+            type="button" 
+            class="filter-btn"
+            [class.active]="filtroActivo() === 'INACTIVAS'"
+            (click)="cambiarFiltro('INACTIVAS')">
+            Inactivas
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      @if (loading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando datos...</p>
+        </div>
+      } 
+      <!-- Empty State -->
+      @else if (agendasFiltradas().length === 0) {
+        <div class="empty-state">
+          <i class="bi bi-inbox"></i>
+          <h5>No hay agendas</h5>
+          <p>No se encontraron agendas para el filtro seleccionado.</p>
+        </div>
+      } 
+      <!-- Data Table -->
+      @else {
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Agenda</th>
+                <th>Chofer</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (agenda of agendasFiltradas(); track agenda.id) {
+                <tr>
+                  <td>
+                    <div class="agenda-cell">
+                      <div class="agenda-icon">
+                        <i class="bi bi-calendar-check"></i>
+                      </div>
+                      <div class="agenda-info">
+                        <div class="agenda-name">Agenda de {{ getNombreCompleto(agenda) }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="chofer-cell">
+                      <div class="chofer-icon">
+                        <i class="bi bi-person-badge"></i>
+                      </div>
+                      <div class="chofer-info">
+                        <div class="chofer-name">{{ agenda.nombreChofer }} {{ agenda.apellidoChofer }}</div>
+                        @if (agenda.dniChofer) {
+                          <div class="chofer-dni">DNI: {{ agenda.dniChofer }}</div>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span [class]="getEstadoBadgeClass(agenda.activo)" class="status-badge">
+                      {{ agenda.activo ? 'Activa' : 'Inactiva' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="actions-cell">
+                      @if (agenda.activo) {
+                        <button 
+                          type="button"
+                          class="action-btn btn-deactivate"
+                          (click)="desactivarAgenda(agenda)"
+                          title="Desactivar Agenda">
+                          <i class="bi bi-x-circle"></i>
+                        </button>
+                      } @else {
+                        <span class="no-actions">Sin acciones</span>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Modal Component -->
+  <app-agendas-modal
+    [isOpen]="modalOpen()"
+    [choferesDisponibles]="choferesDisponibles()"
+    (save)="onSaveAgenda($event)"
+    (close)="cerrarModal()">
+  </app-agendas-modal>
+</div>

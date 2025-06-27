@@ -1,0 +1,22 @@
+<!-- src/app/app.component.html -->
+@if (showLayout()) {
+  <!-- Layout con sidebar y navbar para rutas autenticadas -->
+  <div class="d-flex">
+    <!-- Sidebar -->
+    <app-sidebar></app-sidebar>
+    
+    <!-- Contenido principal -->
+    <div class="flex-fill">
+      <!-- Navbar -->
+      <app-navbar></app-navbar>
+      
+      <!-- Contenido de las páginas -->
+      <main class="container-fluid p-4">
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+  </div>
+} @else {
+  <!-- Solo router-outlet para auth/login -->
+  <router-outlet></router-outlet>
+}

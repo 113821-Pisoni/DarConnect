@@ -1,0 +1,174 @@
+/* Sidebar principal */
+.sidebar {
+  height: 100vh;
+  width: 250px;
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  transition: width 0.3s ease-in-out;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: sticky; /* Agregar esto */
+  top: 0; /* Agregar esto */
+  overflow-y: auto; /* Por si el sidebar tiene mucho contenido */
+}
+
+/* Sidebar colapsado - solo iconos */
+.sidebar.collapsed {
+  width: 60px;
+}
+
+/* Header del sidebar */
+.sidebar-header {
+  background: rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  min-height: 60px;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.sidebar.collapsed .sidebar-header {
+  justify-content: center;
+}
+
+/* Navegación */
+.nav {
+  flex: 1;
+  overflow: hidden;
+}
+
+.nav-link {
+  border: none;
+  transition: all 0.3s ease;
+  position: relative;
+  white-space: nowrap;
+  min-height: 48px;
+}
+
+.nav-link:hover {
+  background: linear-gradient(135deg, #3a5169 0%, #4a6581 100%);
+  color: white;
+}
+
+.nav-link:active,
+.nav-link.active {
+  background: linear-gradient(135deg, #4a6581 0%, #5a7a99 100%);
+  border-left: 4px solid #ffc107;
+  color: white;
+}
+
+/* Iconos */
+.nav-link i {
+  width: 20px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+/* Ocultar texto cuando está colapsado */
+.sidebar.collapsed .nav-link span,
+.sidebar.collapsed .sidebar-header h5 {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  transition: opacity 0.2s ease;
+}
+
+/* Footer del sidebar - solo visible cuando expandido */
+.sidebar.collapsed .p-3 {
+  display: none;
+}
+
+/* Hacer el sidebar clickeable cuando está colapsado */
+.sidebar.collapsed {
+  cursor: pointer;
+}
+
+.sidebar:not(.collapsed) {
+  cursor: default;
+}
+
+/* Scrollbar personalizado */
+.nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.nav::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Responsive para móvil */
+@media (max-width: 991px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translateX(-100%);
+  }
+  
+  .sidebar:not(.collapsed) {
+    transform: translateX(0);
+  }
+  
+  .sidebar.collapsed {
+    width: 250px;
+    transform: translateX(-100%);
+  }
+
+  /* NUEVAS REGLAS PARA HACER MÁS COMPACTO */
+  
+  /* Reducir padding del header */
+  .sidebar-header {
+    min-height: 50px;
+    padding: 0.75rem !important;
+  }
+  
+  .sidebar-header h5 {
+    font-size: 1.1rem;
+  }
+  
+  /* Reducir espaciado de secciones */
+  .nav-section {
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Títulos de sección más pequeños */
+  .nav-section-title {
+    margin-bottom: 0.5rem !important;
+    padding: 0 0.75rem !important;
+  }
+  
+  .nav-section-title small {
+    font-size: 0.7rem;
+  }
+  
+  /* Links más compactos */
+  .nav-link {
+    min-height: 36px;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.9rem;
+  }
+  
+  .nav-item {
+    margin-bottom: 0.25rem !important;
+  }
+  
+  /* Iconos más pequeños */
+  .nav-link i {
+    font-size: 1rem;
+    width: 18px;
+  }
+  
+  /* Reducir padding general del nav */
+  .nav {
+    padding: 0 0.5rem !important;
+  }
+}
