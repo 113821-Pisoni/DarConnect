@@ -18,7 +18,7 @@ public interface AgendaRepository extends JpaRepository<AgendaEntity, Long> {
     @Query("SELECT a FROM AgendaEntity a WHERE a.chofer.id = :choferId AND a.activo = true")
     Optional<AgendaEntity> findByChoferIdAndActivo(@Param("choferId") Long choferId);
 
-    @Query("SELECT a FROM AgendaEntity a JOIN FETCH@ a.chofer WHERE a.activo = true")
+    @Query("SELECT a FROM AgendaEntity a JOIN FETCH a.chofer WHERE a.activo = true")
     List<AgendaEntity> findAllActivasWithChofer();
 
     @Query("SELECT a FROM AgendaEntity a JOIN FETCH a.chofer WHERE a.id = :id AND a.activo = true")

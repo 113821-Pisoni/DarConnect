@@ -10,6 +10,7 @@ import com.darconnect.services.impl.GoogleMapsServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -58,6 +59,7 @@ public class TrasladoController {
 
     @PostMapping("")
     public ResponseEntity<TrasladoDTO> createTraslado(@Valid @RequestBody TrasladoCreateDTO trasladoCreateDTO) {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Traslado traslado = modelMapper.map(trasladoCreateDTO, Traslado.class);
         Traslado trasladoCreado = trasladoService.createTraslado(traslado);
         TrasladoDTO trasladoDTOResponse = modelMapper.map(trasladoCreado, TrasladoDTO.class);

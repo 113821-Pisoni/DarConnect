@@ -18,6 +18,10 @@ import java.util.Optional;
 public class ObraSocialServiceImpl implements ObraSocialService {
     @Autowired
     ObraSocialRepository obraSocialRepository;
+
+    @Autowired
+    PacienteRepository pacienteRepository;
+
     @Autowired
     ModelMapper modelMapper;
 
@@ -65,8 +69,14 @@ public class ObraSocialServiceImpl implements ObraSocialService {
         }
         ObraSocialEntity obraSocialEntity = obraSocialEntityOptional.get();
 
+        // Si se va a desactivar, validar que no tenga pacientes activos asociados
+        Boolean nuevoEstado = obraSocial.getActivo() != null ? obraSocial.getActivo() : true;
+        if (obraSocialEntity.getActivo() && !nuevoEstado && tienePacientesActivos(obraSocial.getId())) {
+            throw new IllegalStateException("No se puede desactivar la obra social porque tiene pacientes activos asociados.");
+        }
+
         obraSocialEntity.setDescripcion(obraSocial.getDescripcion());
-        obraSocialEntity.setActivo(obraSocial.getActivo()!=null ? obraSocial.getActivo(): true);
+        obraSocialEntity.setActivo(nuevoEstado);
         obraSocialEntity = obraSocialRepository.save(obraSocialEntity);
         return modelMapper.map(obraSocialEntity, ObraSocial.class);
     }
@@ -75,9 +85,14 @@ public class ObraSocialServiceImpl implements ObraSocialService {
     public void deleteObraSocial(Long id) {
         ObraSocialEntity obraSocialEntity = obraSocialRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Obra Social no encontrado"));
+
+        // Validar que no tenga pacientes activos asociados
+        if (tienePacientesActivos(id)) {
+            throw new IllegalStateException("No se puede dar de baja la obra social porque tiene pacientes activos asociados.");
+        }
+
         obraSocialEntity.setActivo(false);
         obraSocialRepository.save(obraSocialEntity);
-
     }
 
     @Override
@@ -85,8 +100,24 @@ public class ObraSocialServiceImpl implements ObraSocialService {
         ObraSocialEntity obraSocialEntity = obraSocialRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Obra Social no encontrado."));
 
+        // Si se va a desactivar, validar que no tenga pacientes activos asociados
+        if (obraSocialEntity.getActivo() && tienePacientesActivos(id)) {
+            throw new IllegalStateException("No se puede desactivar la obra social porque tiene pacientes activos asociados.");
+        }
+
         // Cambiar el estado actual
         obraSocialEntity.setActivo(!obraSocialEntity.getActivo());
         obraSocialRepository.save(obraSocialEntity);
+    }
+
+    /**
+     * Verifica si una obra social tiene pacientes activos asociados
+     * @param obraSocialId ID de la obra social
+     * @return true si tiene pacientes activos, false en caso contrario
+     */
+    private boolean tienePacientesActivos(Long obraSocialId) {
+        // Usando un método que necesitarás agregar al PacienteRepository
+        // O usando el método existente si ya lo tienes
+        return pacienteRepository.existsByIdObraSocialAndActivoTrue(obraSocialId);
     }
 }

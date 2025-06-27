@@ -47,7 +47,7 @@
                   formControlName="idUsuario"
                   [class.is-invalid]="isFieldInvalid('idUsuario')"
                   [disabled]="loading()">
-                  <option value="">Seleccionar usuario...</option>
+                  <option value="" selected>Seleccionar usuario...</option>
                   @for (usuario of usuariosDisponibles(); track usuario.id) {
                     <option [value]="usuario.id">{{ usuario.usuario }}</option>
                   }
@@ -113,6 +113,8 @@
                   class="form-control" 
                   formControlName="dni"
                   placeholder="DNI"
+                  (keypress)="onlyNumbers($event)"
+                  maxlength="8"
                   [class.is-invalid]="isFieldInvalid('dni')"
                   [disabled]="loading()">
                 @if (isFieldInvalid('dni')) {
@@ -132,6 +134,8 @@
                   class="form-control" 
                   formControlName="telefono"
                   placeholder="Teléfono"
+                  (keypress)="onlyNumbers($event)"
+                  maxlength="10"
                   [class.is-invalid]="isFieldInvalid('telefono')"
                   [disabled]="loading()">
                 @if (isFieldInvalid('telefono')) {

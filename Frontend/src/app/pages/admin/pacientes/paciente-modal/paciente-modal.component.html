@@ -9,12 +9,7 @@
             <i class="bi bi-person-heart me-2"></i>
             {{ modalTitle }}
           </h5>
-          <button 
-            type="button" 
-            class="btn-close" 
-            (click)="onCancel()"
-            [disabled]="loading()">
-          </button>
+ 
         </div>
 
         <!-- Modal Body -->
@@ -33,7 +28,7 @@
                     placeholder="Nombre"
                     [disabled]="loading()">
                   <label for="nombre">
-                    <i class="bi bi-person me-2"></i>Nombre
+                    <i class="bi bi-person me-2"></i>Nombre *
                   </label>
                   @if (isNombreInvalid) {
                     <div class="invalid-feedback">
@@ -52,7 +47,9 @@
                     formControlName="apellido"
                     placeholder="Apellido"
                     [disabled]="loading()">
-                  <label for="apellido">Apellido</label>
+                  <label for="apellido">
+                    <i class="bi bi-person me-2"></i>Apellido *
+                  </label>
                   @if (isApellidoInvalid) {
                     <div class="invalid-feedback">
                       {{ getErrorMessage('apellido') }}
@@ -73,9 +70,11 @@
                     id="dni" 
                     formControlName="dni"
                     placeholder="DNI"
+                    (keypress)="onlyNumbers($event)"
+                    maxlength="8"
                     [disabled]="loading()">
                   <label for="dni">
-                    <i class="bi bi-credit-card me-2"></i>DNI
+                    <i class="bi bi-credit-card me-2"></i>DNI *
                   </label>
                   @if (isDniInvalid) {
                     <div class="invalid-feedback">
@@ -93,6 +92,8 @@
                     id="telefono" 
                     formControlName="telefono"
                     placeholder="Teléfono"
+                    (keypress)="onlyNumbers($event)"
+                    maxlength="10"
                     [disabled]="loading()">
                   <label for="telefono">
                     <i class="bi bi-telephone me-2"></i>Teléfono
@@ -158,7 +159,9 @@
                     formControlName="ciudad"
                     placeholder="Ciudad"
                     [disabled]="loading()">
-                  <label for="ciudad">Ciudad</label>
+                  <label for="ciudad">
+                    <i class="bi bi-building me-2"></i>Ciudad
+                  </label>
                   @if (isCiudadInvalid) {
                     <div class="invalid-feedback">
                       {{ getErrorMessage('ciudad') }}
@@ -168,15 +171,15 @@
               </div>
             </div>
 
-            <!-- Obra Social -->
+           <!-- Obra Social -->
             <div class="form-floating mb-3">
               <select 
                 class="form-select" 
                 id="obraSocial" 
                 formControlName="idObraSocial"
                 [disabled]="loading()">
-                <option value="">Sin obra social</option>
-                @for (obra of obrasSociales(); track obra.id) {
+                <option value="">Seleccione obra social...</option>
+                @for (obra of obrasSocialesActivas; track obra.id) {
                   <option [value]="obra.id">{{ obra.descripcion }}</option>
                 }
               </select>
@@ -209,28 +212,30 @@
                 Paciente activo
               </label>
             </div>
-
-            <!-- Modal Footer -->
-            <div class="modal-footer">
-              <button 
-                type="button" 
-                class="btn btn-secondary"
-                (click)="onCancel()"
-                [disabled]="loading()">
-                <i class="bi bi-x me-1"></i>Cancelar
-              </button>
-              <button 
-                type="submit" 
-                class="btn btn-primary"
-                [disabled]="loading() || form.invalid">
-                @if (loading()) {
-                  <span class="spinner-border spinner-border-sm me-2"></span>
-                }
-                <i class="bi bi-check me-1"></i>{{ submitButtonText }}
-              </button>
-            </div>
           </form>
         </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <button 
+            type="button" 
+            class="btn btn-secondary"
+            (click)="onCancel()"
+            [disabled]="loading()">
+            <i class="bi bi-x me-1"></i>Cancelar
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-primary"
+            (click)="onSubmit()"
+            [disabled]="loading() || form.invalid">
+            @if (loading()) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            <i class="bi bi-check me-1"></i>{{ submitButtonText }}
+          </button>
+        </div>
+        
       </div>
     </div>
   </div>

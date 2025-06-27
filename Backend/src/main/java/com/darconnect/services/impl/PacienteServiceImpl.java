@@ -3,6 +3,7 @@ package com.darconnect.services.impl;
 import com.darconnect.entities.PacienteEntity;
 import com.darconnect.models.Paciente;
 import com.darconnect.repositories.PacienteRepository;
+import com.darconnect.repositories.TrasladoRepository;
 import com.darconnect.services.PacienteService;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
@@ -17,6 +18,9 @@ import java.util.Optional;
 public class PacienteServiceImpl implements PacienteService {
     @Autowired
     PacienteRepository pacienteRepository;
+
+    @Autowired
+    TrasladoRepository trasladoRepository;
 
     @Autowired
     ModelMapper modelMapper;
@@ -49,7 +53,6 @@ public class PacienteServiceImpl implements PacienteService {
         }
         return pacientes;
     }
-
 
     @Override
     public Paciente createPaciente(Paciente paciente) {
@@ -87,6 +90,11 @@ public class PacienteServiceImpl implements PacienteService {
         PacienteEntity paciente = pacienteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente no encontrado."));
 
+        // Validar que no tenga traslados activos
+        if (tieneTrasladosActivos(id)) {
+            throw new IllegalStateException("No se puede dar de baja al paciente porque tiene traslados activos asignados.");
+        }
+
         paciente.setActivo(false); // Baja lógica
         pacienteRepository.save(paciente);
     }
@@ -96,8 +104,22 @@ public class PacienteServiceImpl implements PacienteService {
         PacienteEntity paciente = pacienteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente no encontrado."));
 
+        // Si se va a desactivar, validar que no tenga traslados activos
+        if (paciente.getActivo() && tieneTrasladosActivos(id)) {
+            throw new IllegalStateException("No se puede desactivar al paciente porque tiene traslados activos asignados.");
+        }
+
         // Cambiar el estado actual
         paciente.setActivo(!paciente.getActivo());
         pacienteRepository.save(paciente);
+    }
+
+    /**
+     * Verifica si un paciente tiene traslados activos asignados
+     * @param pacienteId ID del paciente
+     * @return true si tiene traslados activos, false en caso contrario
+     */
+    private boolean tieneTrasladosActivos(Long pacienteId) {
+        return trasladoRepository.existsByPacienteIdAndActivoTrue(pacienteId);
     }
 }

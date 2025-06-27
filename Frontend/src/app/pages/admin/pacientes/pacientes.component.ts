@@ -272,7 +272,7 @@ export class PacientesComponent implements OnInit {
           console.error('Error al cambiar estado:', err);
           Swal.fire({
             title: 'Error',
-            text: `No se pudo ${accion} el paciente`,
+            text: `No se pudo ${accion} el paciente, verifique que no tenga traslados activos`,
             icon: 'error',
             confirmButtonColor: '#dc3545'
           });

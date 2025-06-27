@@ -59,6 +59,26 @@
             [class.show]="isDropdownOpen()"
             (click)="$event.stopPropagation()">
           
+          <!-- Preguntas Frecuentes -->
+          <li>
+            <button class="dropdown-item d-flex align-items-center" 
+                    type="button" 
+                    (click)="showFAQ()">
+              <i class="bi bi-question-circle me-2"></i>
+              Preguntas Frecuentes
+            </button>
+          </li>
+          
+          <!-- Contacto -->
+          <li>
+            <button class="dropdown-item d-flex align-items-center" 
+                    type="button" 
+                    (click)="showContact()">
+              <i class="bi bi-envelope me-2"></i>
+              Contáctenos
+            </button>
+          </li>
+          
           <li><hr class="dropdown-divider"></li>
           
           <li>

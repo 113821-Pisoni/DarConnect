@@ -258,4 +258,25 @@ export class PacientesModalComponent implements OnDestroy {
   finishLoading() {
     this.loading.set(false);
   }
+
+  onlyNumbers(event: KeyboardEvent): boolean {
+    const charCode = event.which ? event.which : event.keyCode;
+    
+    // Permitir: backspace, delete, tab
+    if ([46, 8, 9].indexOf(charCode) !== -1) {
+      return true;
+    }
+    
+    // Solo permitir números (0-9)
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
+      return false;
+    }
+    
+    return true;
+  }
+
+  get obrasSocialesActivas() {
+    return this.obrasSociales().filter(obra => obra.activo);
+  }
 }

@@ -6,6 +6,40 @@
   box-shadow: none;
 }
 
+/* Remover subrayado del botón dropdown del usuario */
+.btn-link {
+  text-decoration: none !important;
+}
+
+.btn-link:hover {
+  text-decoration: none !important;
+}
+
+.btn-link:focus {
+  text-decoration: none !important;
+}
+
+.btn-link:active {
+  text-decoration: none !important;
+}
+
+/* Específicamente para el dropdown del navbar */
+.dropdown-toggle {
+  text-decoration: none !important;
+}
+
+.dropdown-toggle:hover {
+  text-decoration: none !important;
+}
+
+.dropdown-toggle:focus {
+  text-decoration: none !important;
+}
+
+.dropdown-toggle:active {
+  text-decoration: none !important;
+}
+
 .dropdown-toggle::after {
   display: none;
 }
@@ -13,57 +47,116 @@
 .dropdown-menu {
   border: 1px solid #dee2e6;
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  position: absolute !important;
+  top: 100% !important;
+  right: 0 !important;
+  left: auto !important;
+  min-width: 220px;
+  max-width: 300px;
+  margin-top: 0.5rem;
+  z-index: 1050;
 }
 
 .dropdown-menu.show {
   display: block;
 }
 
-/* AGREGAR ESTAS REGLAS AL FINAL DE TU CSS EXISTENTE */
+/* Asegurar que el dropdown esté dentro de los límites */
+.dropdown {
+  position: relative;
+}
+
+/* Prevenir overflow en el contenedor */
+.container-fluid {
+  overflow: visible;
+}
+
+/* Estilos para los items del dropdown */
+.dropdown-item {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.dropdown-item i {
+  width: 16px;
+  text-align: center;
+}
 
 /* Responsive para navbar */
 @media (max-width: 991px) {
- .navbar-brand {
-   font-size: 1.1rem;
- }
- 
- .dropdown-menu {
-   position: absolute !important;
-   transform: none !important;
-   left: auto !important;
-   right: 0 !important;
-   min-width: 200px;
- }
+  .navbar-brand {
+    font-size: 1.1rem;
+  }
+  
+  .dropdown-menu {
+    min-width: 200px;
+    right: 0 !important;
+    left: auto !important;
+    transform: none !important;
+  }
 }
 
 @media (max-width: 768px) {
- .navbar-brand {
-   font-size: 1rem;
- }
- 
- .btn {
-   padding: 0.5rem 0.75rem;
-   font-size: 0.875rem;
- }
- 
- .dropdown-menu {
-   min-width: 180px;
-   font-size: 0.875rem;
- }
+  .navbar-brand {
+    font-size: 1rem;
+  }
+  
+  .btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  .dropdown-menu {
+    min-width: 180px;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+  
+  .dropdown-item {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
 }
 
 @media (max-width: 480px) {
- .navbar-brand {
-   font-size: 0.9rem;
- }
- 
- .btn {
-   padding: 0.375rem 0.5rem;
-   font-size: 0.8rem;
- }
- 
- .dropdown-menu {
-   min-width: 160px;
-   font-size: 0.8rem;
- }
+  .navbar-brand {
+    font-size: 0.9rem;
+  }
+  
+  .btn {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .dropdown-menu {
+    min-width: 160px;
+    font-size: 0.8rem;
+    right: 0 !important;
+    left: auto !important;
+    margin-top: 0.25rem;
+  }
+  
+  .dropdown-item {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Asegurar que el dropdown no se corte en pantallas muy pequeñas */
+@media (max-width: 360px) {
+  .dropdown-menu {
+    min-width: 140px;
+    max-width: calc(100vw - 20px);
+    right: 10px !important;
+  }
+  
+  .dropdown-item {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
 }

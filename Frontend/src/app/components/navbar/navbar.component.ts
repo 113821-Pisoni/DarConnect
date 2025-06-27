@@ -6,6 +6,7 @@ import { ChoferService } from '../../services/chofer.service';
 import { LoginResponse } from '../../interfaces/auth.interface';
 import { ChoferData } from '../../interfaces/chofer.interface';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-navbar',
@@ -117,6 +118,90 @@ export class NavbarComponent implements OnInit {
     window.dispatchEvent(new CustomEvent('toggleSidebar'));
   }
 
+  showFAQ() {
+    this.closeDropdown();
+    Swal.fire({
+      title: 'PREGUNTAS FRECUENTES - DARCONNECT',
+      html: `
+        <div style="text-align: left; max-height: 400px; overflow-y: auto;">
+          <div style="margin-bottom: 20px;">
+            <p><strong>1. ¿Qué es DarConnect?</strong></p>
+            <p>DarConnect es una aplicación que permite conectar a choferes y administradores de empresas de traslado de pacientes bajo tratamiento crónico, para coordinar viajes de forma más eficiente.</p>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <p><strong>2. ¿Quiénes pueden usar DarConnect?</strong></p>
+            <p>Solo usuarios autorizados por el administrador del sistema. No está habilitado el registro libre ni público.</p>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <p><strong>3. ¿Cómo accedo a la aplicación?</strong></p>
+            <p>Recibirás un usuario y contraseña generados por el administrador del sistema. Una vez habilitado, podrás ingresar desde la app.</p>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <p><strong>4. ¿DarConnect es gratuita?</strong></p>
+            <p>No. El servicio funciona por suscripción mensual, con facturación automática a través de tarjeta de crédito.</p>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <p><strong>5. ¿Qué información personal recolecta la app?</strong></p>
+            <p>Nombre, email, DNI, número de teléfono, ubicación (durante uso activo) y carnet de conducir.</p>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <p><strong>6. ¿Para qué se usa mi ubicación?</strong></p>
+            <p>Se utiliza para calcular rutas, tiempos y distancias entre puntos, mejorando la eficiencia del traslado.</p>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <p><strong>7. ¿Mis datos están protegidos?</strong></p>
+            <p>Sí. Aplicamos medidas de seguridad y no compartimos tus datos con terceros no autorizados.</p>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <p><strong>8. ¿Puedo darme de baja?</strong></p>
+            <p>Sí. Podés solicitar la baja de tu usuario en cualquier momento y también solicitar la eliminación definitiva de tus datos personales.</p>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <p><strong>9. ¿Qué pasa si olvido mi contraseña o tengo problemas para acceder?</strong></p>
+            <p>Podés contactar al soporte escribiendo a <strong><a href="mailto:connectreclamos@connect.com" style="color: #0066cc; text-decoration: none;">connectreclamos@connect.com</a></strong> para recuperar el acceso o resolver cualquier inconveniente.</p>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <p><strong>10. ¿Se puede usar la app sin conexión?</strong></p>
+            <p>No. DarConnect requiere conexión a Internet para funcionar correctamente, ya que utiliza servicios como mapas y notificaciones.</p>
+          </div>
+        </div>
+      `,
+      confirmButtonText: 'Cerrar',
+      confirmButtonColor: '#3085d6',
+      width: '800px'
+    });
+  }
+
+  showContact() {
+    this.closeDropdown();
+    Swal.fire({
+      title: 'CONTÁCTENOS - DARCONNECT',
+      html: `
+        <div style="text-align: left; max-height: 400px; overflow-y: auto;">
+          <p>Para consultas, soporte técnico, solicitud de acceso o baja del servicio, o para ejercer sus derechos sobre datos personales, puede comunicarse con nosotros a través de los siguientes medios:</p>
+          
+          <div style="margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 8px;">
+            <p style="margin-bottom: 10px;"><strong>📧 Correo electrónico:</strong> <a href="mailto:connectreclamos@connect.com" style="color: #0066cc; text-decoration: none;">connectreclamos@connect.com</a></p>
+            <p style="margin-bottom: 0;"><strong>🕐 Horario de atención:</strong> Lunes a viernes, de 9:00 a 18:00 (hora Argentina)</p>
+          </div>
+          
+          <p>Responderemos su mensaje a la brevedad. Gracias por utilizar <strong>DarConnect</strong>.</p>
+        </div>
+      `,
+      confirmButtonText: 'Cerrar',
+      confirmButtonColor: '#3085d6',
+      width: '600px'
+    });
+  }
 
   logout() {
     this.closeDropdown();

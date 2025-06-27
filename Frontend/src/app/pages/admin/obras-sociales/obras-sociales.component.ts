@@ -205,7 +205,7 @@ export class ObrasSocialesComponent implements OnInit {
        error: (err) => {
          Swal.fire({
            title: 'Error',
-           text: `No se pudo ${accion} la obra social`,
+           text: `No se pudo ${accion} la obra social, verifique si tiene pacientes activos con esta obra social`,
            icon: 'error',
            confirmButtonColor: '#dc3545'
          });

@@ -230,7 +230,7 @@ public class TrasladoServiceImpl implements TrasladoService {
 
         LocalDate fechaHoy = LocalDate.now();
         LocalDateTime ahora = LocalDateTime.now();
-        
+
         Optional<HistoricoTrasladoEntity> registroExistente =
                 historicoTrasladoRepository.findUltimoRegistroDelDia(trasladoId, fechaHoy);
 

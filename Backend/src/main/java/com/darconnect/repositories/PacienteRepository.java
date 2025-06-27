@@ -16,4 +16,7 @@ public interface PacienteRepository extends JpaRepository<PacienteEntity, Long> 
 
     @Query("SELECT p FROM PacienteEntity p WHERE p.id = :id AND p.activo = true")
     Optional<PacienteEntity> findByIdAndActivo(@Param("id") Long id);
+
+    @Query("SELECT COUNT(p) > 0 FROM PacienteEntity p WHERE p.idObraSocial = :obraSocialId AND p.activo = true")
+    boolean existsByIdObraSocialAndActivoTrue(@Param("obraSocialId") Long obraSocialId);
 }

@@ -166,4 +166,6 @@ public interface TrasladoRepository extends JpaRepository<TrasladoEntity, Long> 
                 @Param("diaSemana") String diaSemana
         );
 
+    @Query("SELECT COUNT(t) > 0 FROM TrasladoEntity t WHERE t.paciente.id = :pacienteId AND t.activo = true")
+    boolean existsByPacienteIdAndActivoTrue(@Param("pacienteId") Long pacienteId);
 }
