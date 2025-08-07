@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -168,4 +169,21 @@ public interface TrasladoRepository extends JpaRepository<TrasladoEntity, Long> 
 
     @Query("SELECT COUNT(t) > 0 FROM TrasladoEntity t WHERE t.paciente.id = :pacienteId AND t.activo = true")
     boolean existsByPacienteIdAndActivoTrue(@Param("pacienteId") Long pacienteId);
+
+
+    @Query("SELECT t FROM TrasladoEntity t WHERE " +
+            "t.paciente.id = :pacienteId AND " +
+            "(:trasladoId IS NULL OR t.id != :trasladoId) AND " +
+            "t.activo = true AND " +
+            "t.horaProgramada = :horaProgramada")
+    List<TrasladoEntity> findPotentialConflictsForPaciente(@Param("pacienteId") Long pacienteId,
+                                                           @Param("trasladoId") Long trasladoId,
+                                                           @Param("horaProgramada") LocalTime horaProgramada);
+
+    // Para obtener TODOS los traslados (activos e inactivos) con relaciones
+    @Query("SELECT t FROM TrasladoEntity t JOIN FETCH t.agenda a JOIN FETCH a.chofer JOIN FETCH t.paciente")
+    List<TrasladoEntity> findAllWithRelations();
+    
+    @Query("SELECT t FROM TrasladoEntity t JOIN FETCH t.agenda a JOIN FETCH a.chofer JOIN FETCH t.paciente WHERE t.id = :id")
+    Optional<TrasladoEntity> findByIdWithRelationsAll(@Param("id") Long id);
 }

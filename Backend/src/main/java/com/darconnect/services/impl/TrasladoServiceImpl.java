@@ -50,7 +50,7 @@ public class TrasladoServiceImpl implements TrasladoService {
 
     @Override
     public List<Traslado> getTraslados() {
-        List<TrasladoEntity> trasladoEntityList = trasladoRepository.findAllActivosWithRelations();
+        List<TrasladoEntity> trasladoEntityList = trasladoRepository.findAllWithRelations();
         return trasladoEntityList.stream()
                 .map(this::mapToModel)
                 .collect(Collectors.toList());
@@ -88,22 +88,47 @@ public class TrasladoServiceImpl implements TrasladoService {
 
     @Override
     public Traslado updateTraslado(Traslado traslado) {
-        TrasladoEntity trasladoExistente = trasladoRepository.findByIdWithRelations(traslado.getId())
+        TrasladoEntity trasladoExistente = trasladoRepository.findByIdWithRelationsAll(traslado.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Traslado no encontrado."));
 
-        // Validaciones
-        validarTraslado(traslado);
-        validarConflictosHorario(traslado, traslado.getId());
+        // Solo validar si NO es solo un cambio de estado a inactivo
+        boolean esSoloCambioEstado = traslado.getActivo() != null &&
+                !traslado.getActivo() &&
+                (traslado.getDiasSemana() == null || traslado.getDiasSemana().trim().isEmpty());
 
-        // Actualizar campos
-        trasladoExistente.setDireccionOrigen(traslado.getDireccionOrigen());
-        trasladoExistente.setDireccionDestino(traslado.getDireccionDestino());
-        trasladoExistente.setHoraProgramada(traslado.getHoraProgramada());
-        trasladoExistente.setDiasSemana(traslado.getDiasSemana());
-        trasladoExistente.setFechaInicio(traslado.getFechaInicio());
-        trasladoExistente.setFechaFin(traslado.getFechaFin());
-        trasladoExistente.setObservaciones(traslado.getObservaciones());
-        trasladoExistente.setActivo(traslado.getActivo());
+        if (!esSoloCambioEstado) {
+            // Validaciones completas solo si NO es cambio de estado
+            validarTraslado(traslado);
+            validarConflictosHorario(traslado, traslado.getId());
+
+            // Actualizar campos solo si no están vacíos
+            if (traslado.getDireccionOrigen() != null) {
+                trasladoExistente.setDireccionOrigen(traslado.getDireccionOrigen());
+            }
+            if (traslado.getDireccionDestino() != null) {
+                trasladoExistente.setDireccionDestino(traslado.getDireccionDestino());
+            }
+            if (traslado.getHoraProgramada() != null) {
+                trasladoExistente.setHoraProgramada(traslado.getHoraProgramada());
+            }
+            if (traslado.getDiasSemana() != null && !traslado.getDiasSemana().trim().isEmpty()) {
+                trasladoExistente.setDiasSemana(traslado.getDiasSemana());
+            }
+            if (traslado.getFechaInicio() != null) {
+                trasladoExistente.setFechaInicio(traslado.getFechaInicio());
+            }
+            if (traslado.getFechaFin() != null) {
+                trasladoExistente.setFechaFin(traslado.getFechaFin());
+            }
+            if (traslado.getObservaciones() != null) {
+                trasladoExistente.setObservaciones(traslado.getObservaciones());
+            }
+        }
+
+        // Siempre permitir cambio de estado activo
+        if (traslado.getActivo() != null) {
+            trasladoExistente.setActivo(traslado.getActivo());
+        }
 
         // Solo permitir cambiar paciente si se proporciona
         if (traslado.getIdPaciente() != null && !traslado.getIdPaciente().equals(trasladoExistente.getPaciente().getId())) {
@@ -201,6 +226,8 @@ public class TrasladoServiceImpl implements TrasladoService {
         if (hayConflicto) {
             throw new IllegalStateException("Ya existe un traslado en el mismo horario y día");
         }
+
+        validarConflictosPaciente(traslado, trasladoIdExcluir);
     }
 
     private Traslado mapToModel(TrasladoEntity entity) {
@@ -401,6 +428,38 @@ public class TrasladoServiceImpl implements TrasladoService {
             return trasladoEntity.get().getAgenda().getChofer().getTelegramChatId();
         }
         return null;
+    }
+
+    private void validarConflictosPaciente(Traslado traslado, Long trasladoIdExcluir) {
+        System.out.println("🔍 Validando conflictos para paciente ID: " + traslado.getIdPaciente());
+
+        List<TrasladoEntity> trasladosConflictivos = trasladoRepository.findPotentialConflictsForPaciente(
+                traslado.getIdPaciente(),
+                trasladoIdExcluir,
+                traslado.getHoraProgramada()
+        );
+
+        System.out.println("📋 Traslados encontrados: " + trasladosConflictivos.size());
+
+        // Convertir días de semana del traslado nuevo a Set
+        Set<String> diasNuevos = Arrays.stream(traslado.getDiasSemana().split(","))
+                .map(String::trim)
+                .collect(Collectors.toSet());
+
+        // Verificar si algún traslado existente tiene conflicto de días
+        boolean hayConflicto = trasladosConflictivos.stream()
+                .anyMatch(trasladoExistente -> {
+                    Set<String> diasExistentes = Arrays.stream(trasladoExistente.getDiasSemana().split(","))
+                            .map(String::trim)
+                            .collect(Collectors.toSet());
+
+                    // Verificar intersección de días
+                    return diasNuevos.stream().anyMatch(diasExistentes::contains);
+                });
+
+        if (hayConflicto) {
+            throw new IllegalStateException("El paciente ya tiene un traslado programado en el mismo horario y día");
+        }
     }
 
 }
